@@ -1,0 +1,27 @@
+{
+    "version": "1.5.0",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false
+    },
+    "compileOnSave": false,
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./def/lib.d.ts",
+        "./def/ng-decorate.d.ts",
+        "./src/attribute.ts",
+        "./src/component.ts",
+        "./src/index.ts",
+        "./src/service.ts",
+        "./src/utils.ts",
+        "./typings/angularjs/angular.d.ts",
+        "./typings/tsd.d.ts"
+    ]
+}
