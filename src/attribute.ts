@@ -33,8 +33,7 @@ export function Attribute(config: DirectiveConfig) {
       // Produce the enhanced directive definition.
       return angular.extend({
         restrict: 'A',
-        scope: false,
-        bindToController: true
+        scope: false
       }, config)
     }
 
