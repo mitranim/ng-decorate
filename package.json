@@ -11,7 +11,7 @@
     "prepublish": "gulp build",
     "postinstall": "tsd update"
   },
-  "main": "npm/index",
+  "main": "lib/index",
   "keywords": [
     "decorators",
     "es7",
