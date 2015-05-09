@@ -32,7 +32,7 @@
     "tsd": "^0.5.7"
   },
   "jspm": {
-    "format": "cjs",
+    "format": "es6",
     "directories": {
       "lib": "lib"
     },

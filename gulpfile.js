@@ -14,7 +14,7 @@ gulp.task('clear', function(done) {
 
 gulp.task('build', ['clear'], function() {
   return gulp.src(['src/**/*.ts', '!**/*.d.ts'])
-    .pipe($.babel({modules: 'common'}))
+    .pipe($.babel({modules: 'system'}))
     .pipe(gulp.dest('lib'))
 })
 
