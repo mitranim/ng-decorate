@@ -38,7 +38,7 @@ export function Component(config: DirectiveConfig) {
         restrict: 'E',
         scope: {},
         templateUrl: `${kebabCase(directiveName)}/${kebabCase(directiveName)}.html`,
-        controllerAs: 'ctrl',
+        controllerAs: 'self',
         bindToController: true
       }, config)
     }
