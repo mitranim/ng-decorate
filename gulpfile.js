@@ -4,17 +4,17 @@
 
 var gulp = require('gulp')
 var $ = require('gulp-load-plugins')()
+var del = require('del')
 
 /*********************************** Tasks ***********************************/
 
-gulp.task('build', function() {
+gulp.task('clear', function(done) {
+  del('lib', done)
+})
+
+gulp.task('build', ['clear'], function() {
   return gulp.src(['src/**/*.ts', '!**/*.d.ts'])
-    // Proper stack printing.
-    .pipe($.plumber(function(error) {
-      console.log(error.stack || error.message || error)
-      console.log('\x07')
-    }))
-    .pipe($.babel({stage: 0, modules: 'common'}))
+    .pipe($.babel({modules: 'common'}))
     .pipe(gulp.dest('lib'))
 })
 

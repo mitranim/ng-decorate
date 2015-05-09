@@ -1,8 +1,4 @@
 /**
- * Shared utilities.
- */
-
-/**
  * Takes a class and optionally a hash of options and infers the name for the
  * directive / service / module.
  */

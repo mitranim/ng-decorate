@@ -1,4 +1,3 @@
-import angular from 'angular'
 import {getModule, getName} from './utils'
 
 /**
@@ -8,7 +7,7 @@ export function Attribute(config: DirectiveConfig) {
   if (!config) {
     throw new Error(`expected module definition config, got: ${config}`)
   }
-  
+
   return function(constructor: Function) {
     // Retrieve the angular module used to define the directive.
     var module = getModule(constructor, config)
@@ -34,7 +33,8 @@ export function Attribute(config: DirectiveConfig) {
       // Produce the enhanced directive definition.
       return angular.extend({
         restrict: 'A',
-        scope: false
+        scope: false,
+        bindToController: true
       }, config)
     }
 

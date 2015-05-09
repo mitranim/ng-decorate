@@ -1,9 +1,6 @@
 /******************************** Third Party ********************************/
 
-declare module 'angular' {
-  var x: ng.IAngularStatic
-  export default x
-}
+declare var angular: ng.IAngularStatic
 
 interface Function {
   name: string
@@ -12,7 +9,16 @@ interface Function {
   link?: Function
 }
 
-/********************************** Custom ***********************************/
+/********************************** Public ***********************************/
+ 
+// TODO consider publishing the definitions.
+declare module 'ng-decorate' {
+  export function Attribute(config: DirectiveConfig)
+  export function Component(config: DirectiveConfig)
+  export function Service(config: ServiceConfig)
+}
+
+/********************************** Private ***********************************/
 
 interface BaseConfig {
   // Generic name for directive / service / module.

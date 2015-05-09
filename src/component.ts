@@ -1,4 +1,3 @@
-import angular from 'angular'
 import {getModule, getName, kebabCase} from './utils'
 
 /**
@@ -39,7 +38,7 @@ export function Component(config: DirectiveConfig) {
         restrict: 'E',
         scope: {},
         templateUrl: `${kebabCase(directiveName)}/${kebabCase(directiveName)}.html`,
-        controllerAs: 'self',
+        controllerAs: 'ctrl',
         bindToController: true
       }, config)
     }

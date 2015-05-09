@@ -1,4 +1,3 @@
-import angular from 'angular'
 import {getModule, getName} from './utils'
 
 /**

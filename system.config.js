@@ -15,9 +15,8 @@ System.config({
 
 System.config({
   "map": {
-    "angular": "github:angular/bower-angular@1.3.15",
-    "babel": "npm:babel-core@5.2.9",
-    "babel-runtime": "npm:babel-runtime@5.2.9",
+    "babel": "npm:babel-core@5.2.17",
+    "babel-runtime": "npm:babel-runtime@5.2.17",
     "core-js": "npm:core-js@0.8.4",
     "github:jspm/nodelibs-process@0.1.1": {
       "process": "npm:process@0.10.1"
