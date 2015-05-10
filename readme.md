@@ -36,7 +36,7 @@ import {Attribute, Component, Service} from 'ng-decorate'
 
 Defines a component: an element directive with an isolated scope.
 
-Decorator options (using the TypeScript syntax for exposition purposes):
+Decorator options (using TypeScript syntax for exposition):
 ```typescript
 interface DirectiveConfig extends ng.IDirective {
   // The name of the custom element or attribute. Used to derive module name,
@@ -208,7 +208,7 @@ class Directive {
 Makes the decorated class available as an angular service. In other words, makes it
 available for dependency injection in the angular module system.
 
-Decorator options (using the TypeScript syntax for exposition purposes):
+Decorator options (using TypeScript syntax for exposition):
 ```typescript
 interface ServiceConfig {
   // Service name in angular's dependency injection system. Mandatory
@@ -238,10 +238,10 @@ In the simplest form, the declaration looks like this:
 export class MyCustomClass {}
 ```
 
-This implicitly defines or reuses an angular module named `MyCustomClass` and makes the
-class available for dependency injection under the name `'MyCustomClass'`.
-Like with `@Attribute` and `@Component`, you can pass an existing module or specify
-a `moduleName` and its `dependencies`:
+This implicitly defines or reuses an angular module named `'MyCustomClass'`
+and makes the class available for dependency injection under the same name.
+Similarly to `@Attribute` and `@Component`, you can pass an existing module or
+specify a `moduleName` and its `dependencies`:
 
 ```typescript
 @Service({
@@ -290,7 +290,7 @@ export class Timekeeper {
 The catch is that each module used by the decorators, either explicitly or
 implicitly, must be present in the dependency tree of a module that has
 been bootstrapped via `ng-app` or `angular.bootstrap`. If you let the
-decorators define new modules, you must add each of them to the dependency
+decorators define new modules, you must add them to the dependency
 list of your application. To avoid this chore, I recommend using a single
 module for the entire application, passing it to decorators either directly
 or via `moduleName`. There's no need to maintain a separate dependency
