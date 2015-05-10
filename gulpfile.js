@@ -14,6 +14,10 @@ gulp.task('clear', function(done) {
 
 gulp.task('build', ['clear'], function() {
   return gulp.src(['src/**/*.ts', '!**/*.d.ts'])
+    .pipe($.plumber(function(error) {
+      console.log(error.stack || error.message || error)
+      console.log('\x07')
+    }))
     .pipe($.babel({modules: 'common'}))
     .pipe(gulp.dest('lib'))
 })

@@ -15,7 +15,8 @@ and have an ES6 transpilation workflow with [`babel`](https://babeljs.io/) or
 * [Installation](#installation)
 * [Component](#component)
 * [Attribute](#attribute)
-* [Service](#Service)
+* [Service](#service)
+* [Gotcha](#gotcha)
 
 ## Installation
 
@@ -27,21 +28,54 @@ jspm install npm:ng-decorate
 
 In your application:
 
-```javascript
+```typescript
 import {Attribute, Component, Service} from 'ng-decorate'
 ```
 
-The distribution includes the file `def/ng-decorate.d.ts` with the module
-definition. If you're using TypeScript, add it to your `tsconfig.json` for
-contextual help.
-
 ## Component
 
-Defines a component: an element directive with an isolated scope. In this
-example, we explicitly pass an angular module to the decorator. If omitted, the
-decorator will create a new angular module, inferring its name from the class.
+Defines a component: an element directive with an isolated scope.
 
-```javascript
+Decorator options (using the TypeScript syntax for exposition purposes):
+```typescript
+interface DirectiveConfig extends ng.IDirective {
+  // The name of the custom element or attribute. Used to derive module name,
+  // directive name, and template url.
+  selector: string
+
+  // Angular module object. If provided, other module options are ignored, and
+  // no new module is declared.
+  module?: ng.IModule
+
+  // Module name. Will reuse an existing module or create a new one.
+  // If omitted, defaults to the directive's name.
+  moduleName?: string
+
+  // Names of other angular modules this module depends on.
+  dependencies?: string[]
+
+  // Angular services that will be assigned to the class as static properties.
+  inject?: string[]
+}
+```
+
+Defaults:
+```typescript
+{
+  restrict: 'E',
+  scope: {},
+  controllerAs: 'self',
+  bindToController: true
+  /* templateUrl derived from the selector */
+}
+```
+
+All decorator options are passed into the angular directive definition, so you can
+include other options like `transclude` or `scope` to override the defaults.
+
+Example with an explicit module:
+
+```typescript
 @Component({
   module: angular.module('myApp'),
   selector: 'my-custom-element',
@@ -54,48 +88,51 @@ export class ViewModel {
   static $parse: ng.IParseService
 
   constructor() {
-    /* do my stuff */
+    var expression = ViewModel.$parse('1 + 2')
   }
 }
 ```
 
-This implicitly defines a directive named `myCustomElement` on the given angular
-module. If the module is omitted, a new module is created. Example:
+This defines a directive named `myCustomElement` on the given angular
+module. You can pass a module name and dependencies, or let `Component` derive it
+from the directive name.
 
-```javascript
+If you pass a `moduleName` of an existing module, that module will be reused.
+If you're starting a new project, I would recommend using a single
+angular module for the entire application to minimise dependency tree surprises
+(see the [gotcha](#gotcha)).
+
+More examples:
+
+```typescript
 @Component({
-  // Optional namespace prefix for your module names.
-  modulePrefix: 'myApp',
   selector: 'my-carousel',
-  // Dependency annotations for constructor arguments.
-  $inject: ['$element'],
+  // Explicit module name and dependencies.
+  moduleName: 'components.myCarousel',
+  dependencies: ['components.myRotatoMotor'],
   // Optional scope settings.
   scope: {
-    myProperty: '='
+    interval: '='
   }
 })
 export class ViewModel {
-  $element: ng.IAugmentedJQueryStatic
-
-  constructor($element) {
-    this.$element = $element
-    /* do stuff */
-  }
+  interval: number = this.interval | 0 || 5000 
 }
 ```
 
-In this example, the decorator implicitly defines a module named
-`myApp.myCarousel` and a directive named `myCarousel` associated with it.
-
-You can also pass an array of module dependencies as `moduleDeps` to specify
-this module's dependencies on other angular modules. This may be necessary
-if you want to inject services from third party libraries.
+```typescript
+@Component({
+  // Implicitly creates angular.module('myThumbnail', ['ng'])
+  selector: 'my-thumbnail'
+})
+export class ViewModel {}
+```
 
 You might ask, where's the template definition? By convention, the template
-URL is assumed to be `selector-name/selector-name.html`, where `selector-name`
-is the selector string passed into the decorator. You can override it:
+URL is assumed to be `component-name/component-name.html`, where `component-name`
+is the selector passed into the decorator. You can override it:
 
-```javascript
+```typescript
 @Component({
   selector: 'my-accordion',
   templateUrl: 'accordion/view.html'
@@ -103,12 +140,16 @@ is the selector string passed into the decorator. You can override it:
 class ViewModel {}
 ```
 
-To include a `template`, `link`, or `compile` method for the resulting
-directive, define it as a static method on the class. Note that there's usually
-no need to define a `link` method; you can just inject `$scope` and `$element`
+To include a `template`, `templateUrl`, `link`, or `compile` method for the
+resulting directive, define it as a static method on the class. Note that
+unless you need to `require` other directive controllers, there's no need
+to define a `link` method; you can just inject `$scope` and `$element`
 into the constructor.
 
-```javascript
+Pass an `inject` option with a list of angular services to assign to the
+class (see the [gotcha](#gotcha)):
+
+```typescript
 @Component({
   selector: 'svg-icon',
   inject: ['$templateCache']
@@ -124,41 +165,31 @@ class ViewModel {
 }
 ```
 
-The decorator configuration object is passed to the angular directive
-definition, so you can include any directive options like `transclude` or
-`scope` to override the defaults.
+## Attribute
 
-Default component directive settings:
+Similar to `@Component`, but defines an attribute. See [`Component`](#component)
+for the decorator options.
 
-```javascript
+Default options:
+```typescript
 {
-  restrict: 'E',
-  scope: {},
-  templateUrl: /* derived from selector */,
-  controllerAs: 'self',
-  bindToController: true
+  restrict: 'A',
+  scope: false
 }
 ```
 
-You can override any of them in your decorator config object.
+Note that the decorated controller often obviates the need for a link function,
+and serves as the directive's private state.
 
-## Attribute
-
-Similar to `@Component`, but defines an attribute. By default, it has `scope:
-false` and no template. The decorated class becomes its controller.
-
-Note that the decorated controller obviates the need for a link function, and
-serves as the directive's isolated private state, regardless of its `scope`
-setting.
-
-```javascript
+```typescript
 @Attribute({
-  module: angular.module('myApp.attributes'),  // optional
-  selector: '[active-if]', // 'active-if' also works
-  // Dependency annotations for constructor arguments.
-  $inject: ['$element', '$scope', '$parse']
+  // Implicitly reuses an existing module or creates a new one.
+  moduleName: 'myApp',
+  // 'active-if' also works.
+  selector: '[active-if]',
 })
-class ViewModel {
+class Directive {
+  static $inject = ['$element', '$scope', '$parse']
   constructor($element, $scope, $parse) {
     var element: HTMLElement = $element[0]
 
@@ -172,88 +203,95 @@ class ViewModel {
 }
 ```
 
-Like with `@Component`, if we don't provide an explicit module, a new module is
-created with the same name as the directive (in this case `activeIf`) and an
-optional namespace prefix.
-
 ## Service
 
-Makes the decorated class available as an angular service.
+Makes the decorated class available as an angular service. In other words, makes it
+available for dependency injection in the angular module system.
 
-To clarify the terminology: in angular's convoluted module system, 'services'
-are analogous to ES6 named exports. The `@Service` decorator makes your
-ES6-style exports available through the angular DI.
+Decorator options (using the TypeScript syntax for exposition purposes):
+```typescript
+interface ServiceConfig {
+  // Service name in angular's dependency injection system. Mandatory
+  // due to minification woes.
+  serviceName: string
+
+  // Angular module object. If provided, other module options are ignored, and
+  // no new module is declared.
+  module?: ng.IModule
+
+  // Module name. Will reuse an existing module or create a new one.
+  // If omitted, defaults to the name of the service.
+  moduleName?: string
+
+  // Names of other angular modules this module depends on.
+  dependencies?: string[]
+
+  // Angular services that will be assigned to the class as static properties.
+  inject?: string[]
+}
+```
 
 In the simplest form, the declaration looks like this:
 
-```javascript
-@Service({})
+```typescript
+@Service({serviceName: 'MyCustomClass'})
 export class MyCustomClass {}
 ```
 
-This implicitly defines an angular module named `MyCustomClass` and an angular
-factory that exports `MyCustomClass`. Like with `@Attribute` and `@Component`,
-you can pass an existing module or specify `modulePrefix` and `moduleDeps`:
+This implicitly defines or reuses an angular module named `MyCustomClass` and makes the
+class available for dependency injection under the name `'MyCustomClass'`.
+Like with `@Attribute` and `@Component`, you can pass an existing module or specify
+a `moduleName` and its `dependencies`:
 
-```javascript
+```typescript
 @Service({
-  module: angular.module('myApp')
+  module: angular.module('myApp'),
+  serviceName: 'MyClass'
 })
 export class MyClass {}
 
 @Service({
-  modulePrefix: 'app', // the module name will be app.MyOtherClass
-  moduleDeps: ['ng', '3dPartyLibrary']
+  moduleName: 'app.MyOtherClass',
+  dependencies: ['ng', '3dPartyLibrary'],
+  serviceName: 'MyOtherClass'
 })
 export class MyOtherClass {}
+
+@Service({
+  // Reuse an existing 'app' module or create a new one. 
+  moduleName: 'app',
+  serviceName: 'MyAnotherClass'
+})
+export class MyAnotherClass {}
 ```
-
-The service name is derived from the class name. You can specify it explicitly:
-
-```javascript
-@Service({name: 'CustomClass'})
-export class MyCustomClass {}
-```
-
-This class will be available as a service named `CustomClass`.
 
 Pass `inject: [...]` to specify static dependencies. They will be automatically
 assigned to the class.
 
-```javascript
+```typescript
 @Service({
   inject: ['$parse', '$timeout']
 })
 export class Timekeeper {
-  // Optional type annotations. The properties will be assigned regardless.
+  // Add optional type annotations if you're using TypeScript.
   static $parse: ng.IParseService
   static $timeout: ng.ITimeoutService
-}
-```
 
-Pass `$inject: [...]` to specify instance dependencies that will be passed to
-the constructor whenever the class is instantiated by Angular (e.g. as a
-controller):
-
-```javascript
-@Service({
-  $inject: ['$scope', '$element']
-})
-export class MyController {
-  constructor($scope, $timeout) {
-    /* do my stuff */
+  constructor() {
+    Timekeeper.$timeout(() => {
+      console.log(Timekeeper.$parse('now()')(Date))
+    })
   }
 }
 ```
 
-This is identical to annotating with a static property:
+## Gotcha
 
-```javascript
-@Service({})
-export class MyController {
-  static $inject = ['$scope', '$element']
-  constructor($scope, $timeout) {
-    /* do my stuff */
-  }
-}
-```
+The catch is that each module used by the decorators, either explicitly or
+implicitly, must be present in the dependency tree of a module that has
+been bootstrapped via `ng-app` or `angular.bootstrap`. If you let the
+decorators define new modules, you must add each of them to the dependency
+list of your application. To avoid this chore, I recommend using a single
+module for the entire application, passing it to decorators either directly
+or via `moduleName`. There's no need to maintain a separate dependency
+tree when you have ES6 modules.

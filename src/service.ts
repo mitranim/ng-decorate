@@ -1,38 +1,28 @@
-import {getModule, getName} from './utils'
+import * as utils from './utils'
 
 /**
  * Defines a generic angular service.
  */
 export function Service(config: ServiceConfig) {
-  if (!config) {
-    throw new Error(`expected module definition config, got: ${config}`)
-  }
+  console.assert(config != null && typeof config === 'object', `expected a configuration object, got: ${config}`)
+  console.assert(!!config.serviceName, 'you must provide a service name')
 
   return function(constructor: Function) {
-    // Retrieve the angular module used to define the service.
-    var module = getModule(constructor, config)
+    var module = utils.getModule(config, config.serviceName)
 
-    // Decorate the constructor with the `$inject` annotation, if provided.
-    if (config.$inject) constructor.$inject = config.$inject
-
-    // Deduce the name to use for the service.
-    var serviceName = getName(constructor, config)
-
-    // Create a definition function with DI annotations for static injection.
+    // Factory function that assigns the injected services to the constructor.
     definition.$inject = config.inject instanceof Array ? config.inject : []
-    function definition() {
-      // Assign the injected services as static properties.
-      angular.forEach(arguments, (value, index) => {
-        constructor[definition.$inject[index]] = value
+    function definition(...args) {
+      definition.$inject.forEach((token, index) => {
+        constructor[token] = args[index]
       })
-      // Return the result.
       return constructor
     }
 
-    // Run the definition.
-    module.factory(serviceName, definition)
+    // Register the factory.
+    module.factory(config.serviceName, definition)
 
     // Force angular to instantiate the service.
-    module.run([serviceName, () => {}])
+    module.run([config.serviceName, function noop() {}])
   }
 }

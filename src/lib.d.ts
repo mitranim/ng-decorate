@@ -1,18 +1,10 @@
 /******************************** Third Party ********************************/
 
-declare var angular: ng.IAngularStatic
-
-interface Function {
-  name: string
-  template?: Function
-  templateUrl?: Function
-  compile?: Function
-  link?: Function
-}
+declare var angular: ng.IAngularStatic;
 
 /********************************** Public ***********************************/
  
-// TODO consider publishing the definitions.
+// TODO consider ways of publishing alongside the rest of the package.
 declare module 'ng-decorate' {
   export function Attribute(config: DirectiveConfig)
   export function Component(config: DirectiveConfig)
@@ -21,49 +13,38 @@ declare module 'ng-decorate' {
 
 /********************************** Private ***********************************/
 
+// Abstract interface shared by configuration objects.
 interface BaseConfig {
-  // Generic name for directive / service / module.
-  name?: string
-
-  // Selector string for directive definitions.
-  selector?: string
-
-  // Angular module object. If this is provided, no new module will be declared.
+  // Angular module object. If provided, other module options are ignored, and
+  // no new module is declared.
   module?: ng.IModule
 
-  // Module name prefix. Used to namespace modules. Can be used in conjunction
-  // with module name inference, omitting other module options.
-  modulePrefix?: string
+  // Optional name for the new module created for this service or directive.
+  // If omitted, the service or directive name is used.
+  moduleName?: string
 
-  // Module dependencies. Used to create an angular module.
-  moduleDeps?: string[]
+  // Names of other angular modules this module depends on.
+  dependencies?: string[]
 
-  // Services that will be injected into directive definition and assigned to
-  // the class as static properties.
+  // Angular services that will be assigned to the class as static properties.
   inject?: string[]
-
-  // Services that will be injected into the constructor. Replaces the static
-  // $inject property if specified.
-  $inject?: string[]
 }
 
-interface DirectiveConfig extends BaseConfig {
+interface DirectiveConfig extends BaseConfig, ng.IDirective {
   // The name of the custom element or attribute. Used to derive module name,
   // directive name, and template url.
   selector: string
-
-  // Directive definition properties. Assigned automatically during annotation.
-  // Can be overridden by the user.
-  transclude?: boolean
-  scope?: {}
-  require?: string|string[]
-  controller?: Function
-
-  // Obtained from the constructor's static methods.
-  template?: Function|string
-  templateUrl?: Function|string
-  compile?: Function
-  link?: Function
 }
 
-interface ServiceConfig extends BaseConfig {}
+interface ServiceConfig extends BaseConfig {
+  // The name of the service in the angular module system. Mandatory
+  // due to minification woes.
+  serviceName: string
+}
+
+interface Controller extends Function {
+  template?: string|Function
+  templateUrl?: string|Function
+  link?: Function
+  compile?: any
+}
