@@ -15,6 +15,7 @@ export function Attribute(config: DirectiveConfig) {
     // Transfer static methods from the constructor class onto the configuration
     // object.
     if (constructor.template) config.template = constructor.template
+    if (constructor.templateUrl) config.templateUrl = constructor.templateUrl
     if (constructor.compile) config.compile = constructor.compile
     if (constructor.link) config.link = constructor.link
 

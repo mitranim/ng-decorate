@@ -5,6 +5,7 @@ declare var angular: ng.IAngularStatic
 interface Function {
   name: string
   template?: Function
+  templateUrl?: Function
   compile?: Function
   link?: Function
 }
@@ -60,6 +61,7 @@ interface DirectiveConfig extends BaseConfig {
 
   // Obtained from the constructor's static methods.
   template?: Function|string
+  templateUrl?: Function|string
   compile?: Function
   link?: Function
 }
