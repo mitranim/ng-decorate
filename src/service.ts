@@ -11,11 +11,21 @@ export function Service(config: ServiceConfig) {
     var module = utils.getModule(config, config.serviceName)
 
     // Factory function that assigns the injected services to the constructor.
-    definition.$inject = config.inject instanceof Array ? config.inject : []
-    function definition(...args) {
-      definition.$inject.forEach((token, index) => {
-        constructor[token] = args[index]
-      })
+    definition.$inject = [].concat(config.inject || [], config.injectStatic || [])
+    function definition(...injected) {
+      var map = utils.zipObject(definition.$inject, injected)
+      // Assign injected values to the prototype.
+      if (config.inject) {
+        config.inject.forEach(token => {
+          constructor.prototype[token] = map[token]
+        })
+      }
+      // Assign injected values to the class.
+      if (config.injectStatic) {
+        config.injectStatic.forEach(token => {
+          constructor[token] = map[token]
+        })
+      }
       return constructor
     }
 

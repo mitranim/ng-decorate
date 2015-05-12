@@ -10,13 +10,12 @@ and have an ES6 transpilation workflow with [`babel`](https://babeljs.io/) or
 
 ## Contents
 
-* [Description](#description)
-* [Contents](#contents)
 * [Installation](#installation)
 * [Component](#component)
 * [Attribute](#attribute)
 * [Service](#service)
 * [Gotcha](#gotcha)
+* [Analogs](#analogs)
 
 ## Installation
 
@@ -34,9 +33,37 @@ import {Attribute, Component, Service} from 'ng-decorate'
 
 ## Component
 
-Defines a component: an element directive with an isolated scope.
+Defines a component: an element directive with a template and an isolated scope.
 
-Decorator options (using TypeScript syntax for exposition):
+Example:
+
+```typescript
+@Component({
+  module: angular.module('myApp'),
+  selector: 'my-custom-element',
+  // DI annotations for prototype properties.
+  inject: ['$parse']
+})
+export class ViewModel {
+  // Optional type declarations for injected properties.
+  $parse: ng.IParseService
+
+  constructor() {
+    var expression = this.$parse('1 + 2')
+  }
+}
+```
+
+This defines a directive named `myCustomElement` on the given angular module.
+You can pass a module name and dependencies, or let `Component` derive it from
+the directive name.
+
+If you pass a `moduleName` of an existing module, that module will be reused. If
+you're starting a new project, I would recommend using a single angular module
+for the entire application to minimise dependency tree surprises (see the
+[gotcha](#gotcha)).
+
+Decorator options reference (using TypeScript syntax):
 ```typescript
 interface DirectiveConfig extends ng.IDirective {
   // The name of the custom element or attribute. Used to derive module name,
@@ -54,8 +81,11 @@ interface DirectiveConfig extends ng.IDirective {
   // Names of other angular modules this module depends on.
   dependencies?: string[]
 
-  // Angular services that will be assigned to the class as static properties.
+  // Angular services that will be assigned to the class prototype.
   inject?: string[]
+
+  // Angular services that will be assigned to the class as static properties.
+  injectStatic?: string[]
 }
 ```
 
@@ -70,37 +100,8 @@ Defaults:
 }
 ```
 
-All decorator options are passed into the angular directive definition, so you can
-include other options like `transclude` or `scope` to override the defaults.
-
-Example with an explicit module:
-
-```typescript
-@Component({
-  module: angular.module('myApp'),
-  selector: 'my-custom-element',
-  // Dependency annotations for static properties. Assigned
-  // to the class during the annotation process.
-  inject: ['$parse']
-})
-export class ViewModel {
-  // Optional type declaration. The property will be assigned automatically.
-  static $parse: ng.IParseService
-
-  constructor() {
-    var expression = ViewModel.$parse('1 + 2')
-  }
-}
-```
-
-This defines a directive named `myCustomElement` on the given angular
-module. You can pass a module name and dependencies, or let `Component` derive it
-from the directive name.
-
-If you pass a `moduleName` of an existing module, that module will be reused.
-If you're starting a new project, I would recommend using a single
-angular module for the entire application to minimise dependency tree surprises
-(see the [gotcha](#gotcha)).
+All decorator options are passed into the angular directive definition, so you
+can include other options like `transclude` or `scope` to override the defaults.
 
 More examples:
 
@@ -113,10 +114,19 @@ More examples:
   // Optional scope settings.
   scope: {
     interval: '='
-  }
+  },
+  // DI annotations for static class properties.
+  injectStatic: ['$timeout']
 })
 export class ViewModel {
-  interval: number = this.interval | 0 || 5000 
+  static $timeout: ng.ITimeoutService
+  interval: number
+
+  constructor() {
+    ViewModel.$timeout(() => {
+      this.interval = this.interval | 0 || 5000
+    })
+  }
 }
 ```
 
@@ -208,11 +218,10 @@ class Directive {
 Makes the decorated class available as an angular service. In other words, makes it
 available for dependency injection in the angular module system.
 
-Decorator options (using TypeScript syntax for exposition):
+Decorator options reference (using TypeScript syntax):
 ```typescript
 interface ServiceConfig {
-  // Service name in angular's dependency injection system. Mandatory
-  // due to minification woes.
+  // Service name in angular's DI system. Mandatory due to minification woes.
   serviceName: string
 
   // Angular module object. If provided, other module options are ignored, and
@@ -226,8 +235,11 @@ interface ServiceConfig {
   // Names of other angular modules this module depends on.
   dependencies?: string[]
 
-  // Angular services that will be assigned to the class as static properties.
+  // Angular services that will be assigned to the class prototype.
   inject?: string[]
+
+  // Angular services that will be assigned to the class as static properties.
+  injectStatic?: string[]
 }
 ```
 
@@ -258,19 +270,39 @@ export class MyClass {}
 export class MyOtherClass {}
 
 @Service({
-  // Reuse an existing 'app' module or create a new one. 
+  // Reuse an existing 'app' module or create a new one.
   moduleName: 'app',
   serviceName: 'MyAnotherClass'
 })
 export class MyAnotherClass {}
 ```
 
-Pass `inject: [...]` to specify static dependencies. They will be automatically
-assigned to the class.
+Pass `inject: [...]` to specify DI dependencies. They will be automatically
+assigned to the prototype and available in class instances.
 
 ```typescript
 @Service({
   inject: ['$parse', '$timeout']
+})
+export class Timekeeper {
+  // Add optional type annotations if you're using TypeScript.
+  $parse: ng.IParseService
+  $timeout: ng.ITimeoutService
+
+  constructor() {
+    this.$timeout(() => {
+      console.log(this.$parse('now()')(Date))
+    })
+  }
+}
+```
+
+Pass `injectStatic: [...]` to specify static DI dependencies. They will be
+automatically assigned to the class.
+
+```typescript
+@Service({
+  injectStatic: ['$parse', '$timeout']
 })
 export class Timekeeper {
   // Add optional type annotations if you're using TypeScript.
@@ -288,10 +320,23 @@ export class Timekeeper {
 ## Gotcha
 
 The catch is that each module used by the decorators, either explicitly or
-implicitly, must be present in the dependency tree of a module that has
-been bootstrapped via `ng-app` or `angular.bootstrap`. If you let the
-decorators define new modules, you must add them to the dependency
-list of your application. To avoid this chore, I recommend using a single
-module for the entire application, passing it to decorators either directly
-or via `moduleName`. There's no need to maintain a separate dependency
-tree when you have ES6 modules.
+implicitly, must be present in the dependency tree of a module that has been
+bootstrapped via `ng-app` or `angular.bootstrap`. If you let the decorators
+define new modules, you must add them to the dependency list of your
+application.
+
+To avoid this chore, I recommend using a single module for the entire
+application, passing it to decorators either directly or via `moduleName`.
+There's no need to maintain a separate dependency tree when you have ES6
+modules.
+
+## Analogs
+
+Here are some other Angular1.x decorator libraries I found.
+* [a1atscript](https://github.com/hannahhoward/a1atscript)
+* [angular2-now](https://github.com/pbastowski/angular2-now)
+
+`ng-decorate` is minimalistic. It aligns with the Angular1.x directive API so
+you don't have to learn new things, and uses only one decorator per service or
+directive. The libraries listed above aim to align with the Angular2 decorator
+API. Pick whichever approach you prefer.

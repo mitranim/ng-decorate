@@ -46,3 +46,14 @@ export function camelCase(name: string): string {
   name = normalise(name)
   return name.replace(/ (.)/g, (m, p1: string) => p1.toUpperCase())
 }
+
+/**
+ * Primitive version of lodash#zipObject.
+ */
+export function zipObject(one: string[], other: any[]): {} {
+  var buffer = {}
+  one.forEach((key, index) => {
+    buffer[key] = other[index]
+  })
+  return buffer
+}

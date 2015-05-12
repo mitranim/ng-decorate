@@ -10,17 +10,27 @@ function Directive(config: DirectiveConfig) {
 
     // Transfer properties.
     config.controller = constructor
-    if (constructor.template) config.template = constructor.template
-    if (constructor.templateUrl) config.templateUrl = constructor.templateUrl
-    if (constructor.link) config.link = constructor.link
-    if (constructor.compile) config.compile = constructor.compile
-    
+    if (constructor.template !== undefined) config.template = constructor.template
+    if (constructor.templateUrl !== undefined) config.templateUrl = constructor.templateUrl
+    if (constructor.link !== undefined) config.link = constructor.link
+    if (constructor.compile !== undefined) config.compile = constructor.compile
+
     // Directive function that assigns the injected services to the constructor.
-    definition.$inject = config.inject instanceof Array ? config.inject : []
-    function definition(...args) {
-      definition.$inject.forEach((token, index) => {
-        constructor[token] = args[index]
-      })
+    definition.$inject = [].concat(config.inject || [], config.injectStatic || [])
+    function definition(...injected) {
+      var map = utils.zipObject(definition.$inject, injected)
+      // Assign injected values to the prototype.
+      if (config.inject) {
+        config.inject.forEach(token => {
+          constructor.prototype[token] = map[token]
+        })
+      }
+      // Assign injected values to the class.
+      if (config.injectStatic) {
+        config.injectStatic.forEach(token => {
+          constructor[token] = map[token]
+        })
+      }
       return config
     }
 
@@ -35,9 +45,9 @@ function Directive(config: DirectiveConfig) {
 export function Component(config: DirectiveConfig) {
   console.assert(config != null && typeof config === 'object', `expected a configuration object, got: ${config}`)
   console.assert(!!config.selector, 'you must provide a selector')
-  
+
   var selector = utils.kebabCase(config.selector)
-  
+
   var directiveConfig: DirectiveConfig = {
     selector: config.selector,
     restrict: 'E',
@@ -46,9 +56,9 @@ export function Component(config: DirectiveConfig) {
     bindToController: true,
     templateUrl: `${selector}/${selector}.html`
   }
-  
+
   angular.extend(directiveConfig, config)
-  
+
   return Directive(directiveConfig)
 }
 
@@ -58,14 +68,14 @@ export function Component(config: DirectiveConfig) {
 export function Attribute(config: DirectiveConfig) {
   console.assert(config != null && typeof config === 'object', `expected a configuration object, got: ${config}`)
   console.assert(!!config.selector, 'you must provide a selector')
-  
+
   var directiveConfig: DirectiveConfig = {
     selector: config.selector,
     restrict: 'A',
     scope: false
   }
-  
+
   angular.extend(directiveConfig, config)
-  
+
   return Directive(directiveConfig)
 }
