@@ -14,6 +14,7 @@ and have an ES6 transpilation workflow with [`babel`](https://babeljs.io/) or
 * [Component](#component)
 * [Attribute](#attribute)
 * [Service](#service)
+* [Defaults](#defaults)
 * [Gotcha](#gotcha)
 * [Analogs](#analogs)
 
@@ -315,6 +316,46 @@ export class Timekeeper {
     })
   }
 }
+```
+
+If you don't need to publish your service to Angular's DI system, replace
+`Service` with `Ambient`. It doesn't require a `serviceName`, but still provides
+automatic assignment of injected dependencies.
+
+```diff
+- import {Service} from 'ng-decorate'
++ import {Ambient} from 'ng-decorate'
+
+- @Service({serviceName: 'MyService'})
++ @Ambient({})
+export class MyService {}
+```
+
+## Defaults
+
+The package has a stateful default configuration. You can import and mutate it
+to set global defaults.
+
+Default configuration:
+
+```typescript
+export class defaults {
+  static module: ng.IModule = null
+  static moduleName: string = null
+  static controllerAs: string = 'self'
+  static makeTemplateUrl(selector: string): string {
+    return `${selector}/${selector}.html`
+  }
+}
+```
+
+Example of configuring `ng-decorate`:
+
+```typescript
+import {defaults} from 'ng-decorate'
+
+defaults.module = angular.module('app')
+defaults.controllerAs = 'vm'
 ```
 
 ## Gotcha
