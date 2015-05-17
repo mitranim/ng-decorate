@@ -3,7 +3,7 @@ import * as utils from './utils'
 /**
  * Shared directive definition logic.
  */
-function Directive(config: DirectiveConfig) {
+function directive(config: DirectiveConfig) {
   return function(constructor: Controller) {
     var module = utils.getModule(config, config.selector)
     var directiveName = utils.camelCase(config.selector)
@@ -52,14 +52,14 @@ export function Component(config: DirectiveConfig) {
     selector: config.selector,
     restrict: 'E',
     scope: {},
-    controllerAs: 'self',
+    controllerAs: utils.defaults.controllerAs,
     bindToController: true,
-    templateUrl: `${selector}/${selector}.html`
+    templateUrl: utils.defaults.makeTemplateUrl(selector)
   }
 
   angular.extend(directiveConfig, config)
 
-  return Directive(directiveConfig)
+  return directive(directiveConfig)
 }
 
 /**
@@ -77,5 +77,5 @@ export function Attribute(config: DirectiveConfig) {
 
   angular.extend(directiveConfig, config)
 
-  return Directive(directiveConfig)
+  return directive(directiveConfig)
 }

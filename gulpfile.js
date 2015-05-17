@@ -13,12 +13,27 @@ gulp.task('clear', function(done) {
 })
 
 gulp.task('build', ['clear'], function() {
-  return gulp.src(['src/**/*.ts', '!**/*.d.ts'])
+  var filter = $.filter('**/index.js')
+
+  return gulp.src('src/**/*.ts')
     .pipe($.plumber(function(error) {
       console.log(error.stack || error.message || error)
       console.log('\x07')
     }))
-    .pipe($.babel({modules: 'common'}))
+    .pipe($.typescript({
+      typescript: require('typescript'),
+      target: 'ES5',
+      module: 'commonjs',
+      noExternalResolve: true
+    }))
+    .pipe(filter)
+    // Allow SystemJS to consume our named exports the ES6 way.
+    .pipe($.replace(/$/,
+      "\nObject.defineProperty(exports, '__esModule', {\n" +
+      "  value: true\n" +
+      "});\n"
+    ))
+    .pipe(filter.restore())
     .pipe(gulp.dest('lib'))
 })
 

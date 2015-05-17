@@ -1,2 +1,3 @@
-export * from './directive'
-export * from './service'
+export * from './directives'
+export * from './services'
+export {defaults} from './utils'

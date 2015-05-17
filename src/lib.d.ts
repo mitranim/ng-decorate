@@ -4,11 +4,18 @@ declare var angular: ng.IAngularStatic;
 
 /********************************** Public ***********************************/
 
-// TODO consider ways of publishing alongside the rest of the package.
+// TODO publish to tsd.
 declare module 'ng-decorate' {
   export function Attribute(config: DirectiveConfig);
+  export function Ambient(config: BaseConfig);
   export function Component(config: DirectiveConfig);
   export function Service(config: ServiceConfig);
+  export var defaults: {
+    module?: ng.IModule;
+    moduleName?: string;
+    controllerAs: string;
+    makeTemplateUrl: (selector: string) => string;
+  };
 }
 
 /********************************** Private ***********************************/
