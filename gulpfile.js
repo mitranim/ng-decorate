@@ -1,24 +1,24 @@
-'use strict'
+'use strict';
 
 /******************************* Dependencies ********************************/
 
-var gulp = require('gulp')
-var $ = require('gulp-load-plugins')()
-var del = require('del')
+var gulp = require('gulp');
+var $ = require('gulp-load-plugins')();
+var del = require('del');
 
 /*********************************** Tasks ***********************************/
 
 gulp.task('clear', function(done) {
-  del('lib', done)
-})
+  del('lib', done);
+});
 
 gulp.task('build', ['clear'], function() {
-  var filter = $.filter('**/index.js')
+  var filter = $.filter('**/index.js');
 
-  return gulp.src('src/**/*.ts')
+  return gulp.src(['src/**/*.ts', 'def/**/*.ts', 'typings/**/*.ts'])
     .pipe($.plumber(function(error) {
-      console.log(error.stack || error.message || error)
-      console.log('\x07')
+      console.log(error.stack || error.message || error);
+      console.log('\x07');
     }))
     .pipe($.typescript({
       typescript: require('typescript'),
@@ -34,11 +34,11 @@ gulp.task('build', ['clear'], function() {
       "});\n"
     ))
     .pipe(filter.restore())
-    .pipe(gulp.dest('lib'))
-})
+    .pipe(gulp.dest('lib'));
+});
 
 gulp.task('watch', ['build'], function() {
-  $.watch('src/**/*.ts', function() {return gulp.start('build')})
-})
+  $.watch('**/*.ts', function() {return gulp.start('build')});
+});
 
-gulp.task('default', ['watch'])
+gulp.task('default', ['watch']);

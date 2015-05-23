@@ -14,6 +14,7 @@ and have an ES6 transpilation workflow with [`babel`](https://babeljs.io/) or
 * [Component](#component)
 * [Attribute](#attribute)
 * [Service](#service)
+* [Property Bindings](#bindings)
 * [Defaults](#defaults)
 * [Gotcha](#gotcha)
 * [Analogs](#analogs)
@@ -26,10 +27,17 @@ In a shell:
 jspm install npm:ng-decorate
 ```
 
-In your application:
+Example usage:
 
 ```typescript
-import {Attribute, Component, Service} from 'ng-decorate'
+import {Component, bindTwoWay} from 'ng-decorate';
+
+@Component({
+  selector: 'my-accordeon'
+})
+export class MyAccordeon {
+  @bindTwoWay() length: number;
+}
 ```
 
 ## Component
@@ -47,10 +55,10 @@ Example:
 })
 export class ViewModel {
   // Optional type declarations for injected properties.
-  $parse: ng.IParseService
+  $parse: ng.IParseService;
 
   constructor() {
-    var expression = this.$parse('1 + 2')
+    var expression = this.$parse('1 + 2');
   }
 }
 ```
@@ -69,24 +77,24 @@ Decorator options reference (using TypeScript syntax):
 interface DirectiveConfig extends ng.IDirective {
   // The name of the custom element or attribute. Used to derive module name,
   // directive name, and template url.
-  selector: string
+  selector: string;
 
   // Angular module object. If provided, other module options are ignored, and
   // no new module is declared.
-  module?: ng.IModule
+  module?: ng.IModule;
 
   // Module name. Will reuse an existing module or create a new one.
   // If omitted, defaults to the directive's name.
-  moduleName?: string
+  moduleName?: string;
 
   // Names of other angular modules this module depends on.
-  dependencies?: string[]
+  dependencies?: string[];
 
   // Angular services that will be assigned to the class prototype.
-  inject?: string[]
+  inject?: string[];
 
   // Angular services that will be assigned to the class as static properties.
-  injectStatic?: string[]
+  injectStatic?: string[];
 }
 ```
 
@@ -120,13 +128,13 @@ More examples:
   injectStatic: ['$timeout']
 })
 export class ViewModel {
-  static $timeout: ng.ITimeoutService
-  interval: number
+  static $timeout: ng.ITimeoutService;
+  interval: number;
 
   constructor() {
     ViewModel.$timeout(() => {
-      this.interval = this.interval | 0 || 5000
-    })
+      this.interval = this.interval | 0 || 5000;
+    });
   }
 }
 ```
@@ -166,12 +174,12 @@ class (see the [gotcha](#gotcha)):
   inject: ['$templateCache']
 })
 class ViewModel {
-  static $templateCache: ng.ITemplateCacheService
+  static $templateCache: ng.ITemplateCacheService;
 
   static template($elem: ng.IAugmentedJQueryStatic) {
-    var elem: HTMLElement = $elem[0]
-    var src = 'svg/' + elem.getAttribute('icon') + '.svg'
-    return ViewModel.$templateCache.get(src)
+    var elem: HTMLElement = $elem[0];
+    var src = 'svg/' + elem.getAttribute('icon') + '.svg';
+    return ViewModel.$templateCache.get(src);
   }
 }
 ```
@@ -200,16 +208,16 @@ and serves as the directive's private state.
   selector: '[active-if]',
 })
 class Directive {
-  static $inject = ['$element', '$scope', '$parse']
+  static $inject = ['$element', '$scope', '$parse'];
   constructor($element, $scope, $parse) {
-    var element: HTMLElement = $element[0]
+    var element: HTMLElement = $element[0];
 
-    var expression = $parse(element.getAttribute('active-if'))
+    var expression = $parse(element.getAttribute('active-if'));
 
     $scope.$watch(() => expression($scope), result => {
-      if (result) element.classList.add('active')
-      else element.classList.remove('active')
-    })
+      if (result) element.classList.add('active');
+      else element.classList.remove('active');
+    });
   }
 }
 ```
@@ -223,24 +231,24 @@ Decorator options reference (using TypeScript syntax):
 ```typescript
 interface ServiceConfig {
   // Service name in angular's DI system. Mandatory due to minification woes.
-  serviceName: string
+  serviceName: string;
 
   // Angular module object. If provided, other module options are ignored, and
   // no new module is declared.
-  module?: ng.IModule
+  module?: ng.IModule;
 
   // Module name. Will reuse an existing module or create a new one.
   // If omitted, defaults to the name of the service.
-  moduleName?: string
+  moduleName?: string;
 
   // Names of other angular modules this module depends on.
-  dependencies?: string[]
+  dependencies?: string[];
 
   // Angular services that will be assigned to the class prototype.
-  inject?: string[]
+  inject?: string[];
 
   // Angular services that will be assigned to the class as static properties.
-  injectStatic?: string[]
+  injectStatic?: string[];
 }
 ```
 
@@ -287,13 +295,13 @@ assigned to the prototype and available in class instances.
 })
 export class Timekeeper {
   // Add optional type annotations if you're using TypeScript.
-  $parse: ng.IParseService
-  $timeout: ng.ITimeoutService
+  $parse: ng.IParseService;
+  $timeout: ng.ITimeoutService;
 
   constructor() {
     this.$timeout(() => {
-      console.log(this.$parse('now()')(Date))
-    })
+      console.log(this.$parse('now()')(Date));
+    });
   }
 }
 ```
@@ -307,13 +315,13 @@ automatically assigned to the class.
 })
 export class Timekeeper {
   // Add optional type annotations if you're using TypeScript.
-  static $parse: ng.IParseService
-  static $timeout: ng.ITimeoutService
+  static $parse: ng.IParseService;
+  static $timeout: ng.ITimeoutService;
 
   constructor() {
     Timekeeper.$timeout(() => {
-      console.log(Timekeeper.$parse('now()')(Date))
-    })
+      console.log(Timekeeper.$parse('now()')(Date));
+    });
   }
 }
 ```
@@ -323,12 +331,141 @@ If you don't need to publish your service to Angular's DI system, replace
 automatic assignment of injected dependencies.
 
 ```diff
-- import {Service} from 'ng-decorate'
-+ import {Ambient} from 'ng-decorate'
+- import {Service} from 'ng-decorate';
++ import {Ambient} from 'ng-decorate';
 
 - @Service({serviceName: 'MyService'})
 + @Ambient({})
 export class MyService {}
+```
+
+## Bindings
+
+`ng-decorate` provides _property decorators_ to declare properties as bindable.
+This lets you skip `scope: {/* ... */}` and specify binding types directly on
+class property initialisers.
+
+Example:
+
+```typescript
+import {Component, bindString, bindTwoWay} from 'ng-decorate';
+
+@Component({
+  selector: 'editable'
+})
+class VM {
+  @bindString() label: string;
+  @bindTwoWay() value: string;
+}
+```
+
+Which is equivalent to:
+
+```typescript
+import {Component} from 'ng-decorate';
+
+@Component({
+  scope: {
+    label: '@',
+    value: '='
+  }
+})
+class VM {
+  label: string;
+  value: string;
+}
+```
+
+This saves you from duplicating property bindings in the decorator and the class
+body, and makes bindings more semantic.
+
+### @bindString
+
+```typescript
+class VM {
+  @bindString() first: string;
+  @bindString('last') second: string;
+}
+```
+
+Is equivalent to:
+
+```typescript
+class VM {
+  first: string;
+  second: string;
+  static scope = {
+    first: '@',
+    second: '@last'
+  };
+}
+```
+
+### @bindTwoWay
+
+```typescript
+class VM {
+  @bindTwoWay() first: boolean;
+  @bindTwoWay({collection: true, optional: true, key: 'last'})
+  second: number[];
+}
+```
+
+Is equivalent to:
+
+```typescript
+class VM {
+  first: boolean;
+  second: number[];
+  static scope = {
+    first: '=',
+    second: '=*?last'
+  };
+}
+```
+
+### @bindOneWay
+
+This is a special feature of `ng-decorate`. One-way binding for non-string
+values isn't natively supported by Angular 1.x. `ng-decorate` implements it
+through a hidden expression binding and a getter/setter pair.
+
+Example usage:
+
+```typescript
+@Component({
+  selector: 'controlled-input'
+})
+class VM {
+  @bindOneWay() value: string;
+
+  constructor() {
+    this.value = 123;         // has no effect
+    console.log(this.value);  // not 123
+  }
+}
+```
+
+### @bindExpression
+
+```typescript
+class VM {
+  @bindExpression() first: Function;
+  @bindExpression('last') second: Function;
+}
+```
+
+Is equivalent to:
+
+```typescript
+class VM {
+  first: Function;
+  second: Function;
+  static scope = {
+    first: '&',
+    second: '&last'
+  };
+}
 ```
 
 ## Defaults
@@ -339,12 +476,17 @@ to set global defaults.
 Default configuration:
 
 ```typescript
-export class defaults {
-  static module: ng.IModule = null
-  static moduleName: string = null
-  static controllerAs: string = 'self'
-  static makeTemplateUrl(selector: string): string {
-    return `${selector}/${selector}.html`
+export const defaults = {
+  // Default angular module. Supersedes module declarations.
+  module: <ng.IModule>null,
+  // Default module name.
+  moduleName: <string>null,
+  // Controller key. Other common variants include 'ctrl' and 'vm'.
+  controllerAs: 'self',
+  // Generates a template url from an element name. Another common variant:
+  // 'components/elementName/elementName.html'.
+  makeTemplateUrl(elementName: string): string {
+    return `${elementName}/${elementName}.html`;
   }
 }
 ```
@@ -352,24 +494,24 @@ export class defaults {
 Example of configuring `ng-decorate`:
 
 ```typescript
-import {defaults} from 'ng-decorate'
+import {defaults} from 'ng-decorate';
 
-defaults.module = angular.module('app')
-defaults.controllerAs = 'vm'
+defaults.module = angular.module('app');
+defaults.controllerAs = 'vm';
 ```
 
 ## Gotcha
 
-The catch is that each module used by the decorators, either explicitly or
-implicitly, must be present in the dependency tree of a module that has been
-bootstrapped via `ng-app` or `angular.bootstrap`. If you let the decorators
-define new modules, you must add them to the dependency list of your
-application.
+The catch is that each angular "module" used by the decorators, either
+explicitly or implicitly, must be present in the dependency tree of the module
+that has been bootstrapped via `ng-app` or `angular.bootstrap`. If you let the
+decorators define new angular modules, you must add them to the dependency list
+of the main one.
 
-To avoid this chore, I recommend using a single module for the entire
-application, passing it to decorators either directly or via `moduleName`.
-There's no need to maintain a separate dependency tree when you have ES6
-modules.
+To skip this chore, I recommend using a single angular module for the entire
+application, setting it in `defaults` or explicitly passing it to decorators.
+There's no need to maintain a separate dependency tree for the DI injector when
+the real modularity comes from ES6.
 
 ## Analogs
 

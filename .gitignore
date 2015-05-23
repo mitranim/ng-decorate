@@ -28,4 +28,5 @@ nbproject
 node_modules
 bower_components
 jspm_packages
-typings
+typings/*
+!typings/ng-decorate
