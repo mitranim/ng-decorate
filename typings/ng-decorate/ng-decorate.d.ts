@@ -81,10 +81,10 @@ declare module ngDecorate {
   }
 
   interface BindOptionsTwoWay {
-    // Adds `?` to the property descriptor, marking it optional.
-    optional?: boolean;
     // Adds `*` to the property descriptor, marking it for `$watchCollection`.
     collection?: boolean;
+    // Adds `?` to the property descriptor, marking it optional.
+    optional?: boolean;
     // Adds an external property name to the binding.
     key?: string;
   }

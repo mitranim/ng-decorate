@@ -8,13 +8,30 @@ function directive(config: lib.DirectiveConfig) {
     var module = utils.getModule(config, config.selector);
     var directiveName = utils.camelCase(config.selector);
 
-    // Transfer properties.
+    /**
+     * Transfer properties.
+     */
     config.controller = constructor;
-    if (constructor.template !== undefined) config.template = constructor.template;
-    if (constructor.templateUrl !== undefined) config.templateUrl = constructor.templateUrl;
-    if (constructor.link !== undefined) config.link = constructor.link;
-    if (constructor.compile !== undefined) config.compile = constructor.compile;
     if (constructor.scope !== undefined) config.scope = constructor.scope;
+    // Link functions must be cloned because angular mutates them with `require`
+    // annotations, then relies on those annotations for injection.
+    if (typeof constructor.link === 'function') {
+      config.link = utils.cloneFunction(constructor.link);
+    }
+    // Cloning other functions just in case.
+    if (typeof constructor.compile === 'function') {
+      config.compile = utils.cloneFunction(constructor.compile);
+    }
+    if (typeof constructor.template === 'function') {
+      config.template = utils.cloneFunction(<Function>constructor.template);
+    } else if (typeof constructor.template === 'string') {
+      config.template = constructor.template;
+    }
+    if (typeof constructor.templateUrl === 'function') {
+      config.templateUrl = utils.cloneFunction(<Function>constructor.templateUrl);
+    } else if (typeof constructor.templateUrl === 'string') {
+      config.templateUrl = constructor.templateUrl;
+    }
 
     // Directive function that assigns the injected services to the constructor.
     definition.$inject = [].concat(config.inject || [], config.injectStatic || []);

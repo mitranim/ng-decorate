@@ -83,3 +83,11 @@ export function zipObject<T>(one: string[], other: T[]): {[key: string]: T} {
   });
   return buffer;
 }
+
+/**
+ * "Copies" the given function. Doesn't preserve arity ('.length') and
+ * argument names.
+ */
+export function cloneFunction(func: Function) {
+  return function(...args) {return func.call(this, ...args)};
+}
