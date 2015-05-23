@@ -85,8 +85,8 @@ export function zipObject<T>(one: string[], other: T[]): {[key: string]: T} {
 }
 
 /**
- * "Copies" the given function. Doesn't preserve arity ('.length') and
- * argument names.
+ * "Clones" the given function by wrapping it into a pass-through function.
+ * Doesn't preserve arity ('.length') and argument names.
  */
 export function cloneFunction(func: Function) {
   return function(...args) {return func.call(this, ...args)};
