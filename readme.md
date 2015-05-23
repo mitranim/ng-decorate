@@ -352,6 +352,7 @@ Expands to:
 import {Component} from 'ng-decorate';
 
 @Component({
+  selector: 'editable',
   scope: {
     label: '@',
     value: '='
