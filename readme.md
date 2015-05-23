@@ -13,18 +13,18 @@ to get you started: [[1]](http://mitranim.com/thoughts/next-generation-today/).
 
 * [Installation](#installation)
 * [Directives](#directives)
-  * [`@Component`](#-component-)
-  * [`@Attribute`](#-attribute-)
+  * [`@Component`](#component)
+  * [`@Attribute`](#attribute)
   * [Directive Options](#directive-options)
 * [Services](#services)
-  * [`@Ambient`](#-ambient-)
-  * [`@Service`](#-service-)
+  * [`@Ambient`](#ambient)
+  * [`@Service`](#service)
   * [Service Options](#service-options)
 * [Bindings](#bindings)
-  * [`@bindString`](#-bindstring-)
-  * [`@bindTwoWay`](#-bindtwoway-)
-  * [`@bindOneWay`](#-bindoneway-)
-  * [`@bindExpression`](#-bindexpression-)
+  * [`@bindString`](#bindstring)
+  * [`@bindTwoWay`](#bindtwoway)
+  * [`@bindOneWay`](#bindoneway)
+  * [`@bindExpression`](#bindexpression)
 * [`defaults`](#defaults)
 * [Gotcha](#gotcha)
 * [Prior Art](#prior-art)
@@ -433,7 +433,7 @@ class VM {
 
   constructor() {
     this.value = 123;         // has no effect
-    console.log(this.value);  // print 'constant value'
+    console.log(this.value);  // prints 'constant value'
   }
 }
 ```
