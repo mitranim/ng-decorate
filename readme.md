@@ -1,8 +1,12 @@
 ## Description
 
-ES7 decorators for Angular 1.x applications. Help you make Angular's directive
-API and dependency injection play nicely with ES6 modules, classes, and
-TypeScript's property declarations. Perfect for an ES7 / TypeScript application.
+ES7 decorators for Angular 1.x. Help you:
+
+* Get around Angular's dependency injection while using ES6 modules.
+* Make custom directive declarations very short and semantic.
+* Declare bindables directly on class properties.
+
+Perfect for an ES7 / TypeScript application.
 
 This readme assumes you're already using [`jspm`](http://jspm.io) and `System`,
 and have an ES6 transpilation workflow with [`babel`](https://babeljs.io/) or
@@ -123,8 +127,9 @@ See [`defaults`](#defaults) for customisation.
 This applies to both `@Component` and `@Attribute`.
 
 Any passed options will be included into the resulting
-[directive definition object](https://docs.angularjs.org/api/ng/service/$compile#directive-definition-object), so you can use the standard
-directive API on top of `ng-decorate`-specific options. Example:
+[directive definition object](https://docs.angularjs.org/api/ng/service/$compile#directive-definition-object),
+so you can use the standard directive API on top of `ng-decorate`-specific
+options. Example:
 
 ```typescript
 @Component({
@@ -133,7 +138,7 @@ directive API on top of `ng-decorate`-specific options. Example:
 })
 ```
 
-#### — `selector` `: string`
+#### `selector` `: string`
 
 Required. This is the selector string for the resulting directive. For
 `@Attribute`, you can optionally enclose it into brackets:
@@ -142,7 +147,7 @@ Required. This is the selector string for the resulting directive. For
 @Attribute({selector: '[my-attribute]'})
 ```
 
-#### — `module` `: ng.IModule`
+#### `module` `: ng.IModule`
 
 Optional. The directive will be registered under the given angular module, no
 new module will be created, and other module options will be ignored:
@@ -159,7 +164,7 @@ modularity of your app comes from ES6 modules, and maintaining another
 dependency tree is pointless. See [`defaults`](#defaults) for how to set up an
 implicit module.
 
-#### — `moduleName` `: string`
+#### `moduleName` `: string`
 
 Optional. Dictates the name of the new angular "module" that will be created:
 
@@ -173,7 +178,7 @@ Optional. Dictates the name of the new angular "module" that will be created:
 If omitted, defaults to the directive's name, as shown above. See
 [`defaults`](#defaults) for how to set up an implicit module.
 
-#### — `dependencies` `: string[]`
+#### `dependencies` `: string[]`
 
 Optional. Names of other angular "modules" the newly created module depends on.
 This is necessary when you depend on third party services that need to be
@@ -188,7 +193,7 @@ dependency-injected (see `inject` below):
 
 If omitted, defaults to `['ng']`, as shown above.
 
-#### — `inject` `: string[]`
+#### `inject` `: string[]`
 
 Optional. Names of angular services that will be dependency-injected and
 automatically assigned to the class's prototype:
@@ -212,7 +217,7 @@ directives are instantiated.
 See the [`gotcha`](#gotcha) for the possible dependency injection issues. They
 can be easily avoided by using just one module.
 
-#### — `injectStatic` `: string[]`
+#### `injectStatic` `: string[]`
 
 Optional. Works exactly like `inject`, but assigns the injected services to the
 class as static properties.
@@ -229,7 +234,7 @@ class ViewModel {
 }
 ```
 
-#### — Statics
+#### Statics
 
 These directive options can be included as static methods or properties:
 
@@ -305,32 +310,19 @@ angular.module('app').run(['MySpecialClass', function(MySpecialClass) {
 
 This applies to both `@Ambient` and `@Service`.
 
-#### — `module` `: ng.IModule`
-
-See [Directive Options](#directive-options).
-
-#### — `moduleName` `: string[]`
-
-See [Directive Options](#directive-options).
-
-#### — `dependencies` `: string[]`
-
-See [Directive Options](#directive-options).
-
-#### — `inject` `: string[]`
-
-See [Directive Options](#directive-options).
-
-#### — `injectStatic` `: string[]`
+#### `module` `: ng.IModule`
+#### `moduleName` `: string[]`
+#### `dependencies` `: string[]`
+#### `inject` `: string[]`
+#### `injectStatic` `: string[]`
 
 See [Directive Options](#directive-options).
 
 ## Bindings
 
-This lets you directly annotate class properties to declare them as bindable.
-This lets you deduplicate property declarations when using TypeScript. The
-annotations are collected into a `scope: {/* ... */}` declaration, which is then
-passed to the directive definition object.
+Directly annotate class properties to declare them as bindable. Perfect with
+TypeScript. The annotations are collected into a `scope: {/* ... */}`
+declaration, which is then passed to the directive definition object.
 
 Example:
 
@@ -370,6 +362,9 @@ semantic.
 ### `@bindString`
 
 ```typescript
+@Component({
+  selector: 'my-element'
+})
 class VM {
   @bindString() first: string;
   @bindString('last') second: string;
@@ -379,19 +374,25 @@ class VM {
 Expands to:
 
 ```typescript
+@Component({
+  selector: 'my-element',
+  scope: {
+    first: '@',
+    second: '@last'
+  }
+})
 class VM {
   first: string;
   second: string;
-  static scope = {
-    first: '@',
-    second: '@last'
-  };
 }
 ```
 
 ### `@bindTwoWay`
 
 ```typescript
+@Component({
+  selector: 'my-element'
+})
 class VM {
   @bindTwoWay() first: boolean;
   @bindTwoWay({collection: true, optional: true, key: 'last'})
@@ -402,13 +403,16 @@ class VM {
 Expands to:
 
 ```typescript
+@Component({
+  selector: 'my-element',
+  scope: {
+    first: '=',
+    second: '=*?last'
+  }
+})
 class VM {
   first: boolean;
   second: number[];
-  static scope = {
-    first: '=',
-    second: '=*?last'
-  };
 }
 ```
 
@@ -418,7 +422,7 @@ This is a special feature of `ng-decorate`. It bridges the gap between Angular
 2, where one-way binding is the default, and Angular 1.x, which doesn't support
 it natively.
 
-Silly example with a hardcoded string:
+Example with a hardcoded string:
 
 ```html
 <controlled-input value="'constant value'"></controlled-input>
@@ -441,6 +445,9 @@ class VM {
 ### `@bindExpression`
 
 ```typescript
+@Component({
+  selector: 'my-element'
+})
 class VM {
   @bindExpression() first: Function;
   @bindExpression('last') second: Function;
@@ -450,13 +457,16 @@ class VM {
 Expands to:
 
 ```typescript
+@Component({
+  selector: 'my-element',
+  scope: {
+    first: '&',
+    second: '&last'
+  }
+})
 class VM {
   first: Function;
   second: Function;
-  static scope = {
-    first: '&',
-    second: '&last'
-  };
 }
 ```
 
