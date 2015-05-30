@@ -71,8 +71,10 @@ export function Component(config: lib.DirectiveConfig) {
     restrict: 'E',
     scope: {},
     controllerAs: utils.defaults.controllerAs,
-    bindToController: true,
-    templateUrl: utils.defaults.makeTemplateUrl(selector)
+    bindToController: true
+  }
+  if (config.template == null && config.templateUrl === undefined) {
+    directiveConfig.templateUrl = utils.defaults.makeTemplateUrl(selector);
   }
 
   angular.extend(directiveConfig, config);
