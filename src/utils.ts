@@ -91,3 +91,32 @@ export function zipObject<T>(one: string[], other: T[]): {[key: string]: T} {
 export function cloneFunction(func: Function) {
   return function(...args) {return func.call(this, ...args)};
 }
+
+/**
+ * Creates a random string that is unlikely to clash with other keys. This is
+ * where you're supposed to use a Symbol, but Angular can't bind to a
+ * symbol-keyed property.
+ */
+export function randomString(): string {
+  return (Math.random() * Math.pow(10, 16)).toString(16);
+}
+
+/**
+ * Adds the given property to the list of items to autoinject onto the class
+ * or prototype.
+ */
+export function autoinject(target: any, propertyName: string): void {
+  if (!target[autoinjectKey]) target[autoinjectKey] = [];
+  target[autoinjectKey].push(propertyName);
+}
+
+/**
+ * Used to store autoinject settings (list of things to inject onto the class
+ * or the prototype).
+ */
+export var autoinjectKey = typeof Symbol === 'function' ? Symbol('autoinjectSettings') : randomString();
+
+/**
+ * Used to store binding information (isolated scope settings).
+ */
+export var scopeKey = typeof Symbol === 'function' ? Symbol('scopeSettings') : randomString();

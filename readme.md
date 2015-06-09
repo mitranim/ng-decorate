@@ -29,6 +29,7 @@ to get you started: [[1]](http://mitranim.com/thoughts/next-generation-today/).
   * [`@bindTwoWay`](#bindtwoway)
   * [`@bindOneWay`](#bindoneway)
   * [`@bindExpression`](#bindexpression)
+* [`@autoinject`](#autoinject)
 * [`defaults`](#defaults)
 * [Gotcha](#gotcha)
 * [Prior Art](#prior-art)
@@ -214,6 +215,8 @@ This lets you easily get hold of angular services while using ES6 modules for
 everything else. The magic happens during Angular's "run phase", before any
 directives are instantiated.
 
+See [`@autoinject`](#autoinject) for a shorter way to declare these injections.
+
 See the [`gotcha`](#gotcha) for the possible dependency injection issues. They
 can be easily avoided by using just one module.
 
@@ -233,6 +236,8 @@ class ViewModel {
   }
 }
 ```
+
+See [`@autoinject`](#autoinject) for a shorter way to declare these injections.
 
 #### Statics
 
@@ -271,17 +276,24 @@ library. Use it when you want to obtain Angular's services without creating any
 new directives or services.
 
 ```typescript
-@Ambient({
-  inject: ['$q'],
-  injectStatic: ['$http']
-})
+import {Ambient, autoinject} from 'ng-decorate';
+
+@Ambient
 class MyAjaxModel {
+  @autoinject $q;
+  @autoinject static $http;
+
   constructor() {
     console.log(this.$q)
     console.log(MyAjaxModel.$http)
   }
 }
 ```
+
+(See [`@autoinject`](#autoinject) below.)
+
+Just like with other class decorators, you can include `module`, `moduleName`
+and so on. For this particular decorator, arguments are optional.
 
 ### `@Service`
 
@@ -366,7 +378,7 @@ semantic.
   selector: 'my-element'
 })
 class VM {
-  @bindString() first: string;
+  @bindString first: string;
   @bindString('last') second: string;
 }
 ```
@@ -394,9 +406,9 @@ class VM {
   selector: 'my-element'
 })
 class VM {
-  @bindTwoWay() first: boolean;
+  @bindTwoWay first: any;
   @bindTwoWay({collection: true, optional: true, key: 'last'})
-  second: number[];
+  second: any;
 }
 ```
 
@@ -411,8 +423,8 @@ Expands to:
   }
 })
 class VM {
-  first: boolean;
-  second: number[];
+  first: any;
+  second: any;
 }
 ```
 
@@ -433,7 +445,7 @@ Example with a hardcoded string:
   selector: 'controlled-input'
 })
 class VM {
-  @bindOneWay() value: string;
+  @bindOneWay value: any;
 
   constructor() {
     this.value = 123;         // has no effect
@@ -449,7 +461,7 @@ class VM {
   selector: 'my-element'
 })
 class VM {
-  @bindExpression() first: Function;
+  @bindExpression first: Function;
   @bindExpression('last') second: Function;
 }
 ```
@@ -469,6 +481,29 @@ class VM {
   second: Function;
 }
 ```
+
+## `@autoinject`
+
+Annotates properties for automatic injection, allowing you to skip `inject`
+and `injectStatic` in the decorator options. Example:
+
+```typescript
+import {Component, autoinject} from 'ng-decorate';
+
+@Component({
+  selector: 'todo-list'
+})
+class VM {
+  @autoinject $q;
+  @autoinject static $timeout;
+  constructor() {
+    console.log(this.$q);
+    console.log(VM.$timeout);
+  }
+}
+```
+
+Works great with TypeScript and property type annotations.
 
 ## `defaults`
 
@@ -527,5 +562,5 @@ These libraries focus on syntax, trying to emulate the Angular 2 decorator API.
 
 In contrast, `ng-decorate` focuses on solving the real problem of making
 Angular's dependency injection work with ES6 modules, and aligns with the
-Angular 1.x directive API. It also introduces property bindings that don't exist
-in Angular 2, in order to deduplicate property declarations.
+Angular 1.x directive API. It also introduces useful property annotations for
+bindings and injection.

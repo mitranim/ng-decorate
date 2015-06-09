@@ -10,7 +10,7 @@ declare module 'ng-decorate' {
   export var Ambient: typeof ngDecorate.Ambient;
   export var Component: typeof ngDecorate.Component;
   export var Service: typeof ngDecorate.Service;
-  // export var bind: typeof ngDecorate.bind;
+  export var autoinject: typeof ngDecorate.autoinject;
   export var bindTwoWay: typeof ngDecorate.bindTwoWay;
   export var bindOneWay: typeof ngDecorate.bindOneWay;
   export var bindString: typeof ngDecorate.bindString;
@@ -26,8 +26,8 @@ declare module ngDecorate {
   export function Service(config: ServiceConfig);
 
   // Property decorators.
-  // export function bind(descriptor?: string);
-  export function bindTwoWay(options?: BindOptionsTwoWay);
+  export function autoinject(target: any, key: string);
+  export function bindTwoWay(options?: BindTwoWayOptions);
   export function bindOneWay(key?: string);
   export function bindString(key?: string);
   export function bindExpression(key?: string);
@@ -80,7 +80,7 @@ declare module ngDecorate {
     scope: any;
   }
 
-  interface BindOptionsTwoWay {
+  interface BindTwoWayOptions {
     // Adds `*` to the property descriptor, marking it for `$watchCollection`.
     collection?: boolean;
     // Adds `?` to the property descriptor, marking it optional.

@@ -1,3 +1,5 @@
+import * as utils from './utils';
+
 /**
  * Property binding decorator. Takes a string property descriptor, like '@' or
  * '&action', and stores it in class's static property `scope` under the same
@@ -24,11 +26,25 @@
  * general form over other, more descriptive decorators.
  */
 function bind(descriptor: string = '=') {
-  return function(target, propertyName: string): void {
+  return function(target: any, propertyName: string): void {
     var Class = target.constructor;
-    if (!Class.scope) Class.scope = {};
-    Class.scope[propertyName] = descriptor;
+    if (!Class[utils.scopeKey]) Class[utils.scopeKey] = {};
+    Class[utils.scopeKey][propertyName] = descriptor;
   };
+}
+
+/**
+ * Polymorphic version of @bindString, usable without parens. Example:
+ *   class VM {
+ *     @bindString first: string;
+ *     @bindString('secunda') second: string;
+ *   }
+ */
+export function bindString(targetOrKey: any|string, keyOrNothing: string|void) {
+  if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
+    return bindStringBase().apply(null, arguments);
+  }
+  return bindStringBase.apply(null, arguments);
 }
 
 /**
@@ -40,12 +56,27 @@ function bind(descriptor: string = '=') {
  *     @bindString('secunda') second: string;
  *   }
  */
-export function bindString(key: string = '') {
-  return function(target, propertyName: string): void {
+function bindStringBase(key: string = '') {
+  return function(target: any, propertyName: string): void {
     var Class = target.constructor;
-    if (!Class.scope) Class.scope = {};
-    Class.scope[propertyName] = '@' + key;
+    if (!Class[utils.scopeKey]) Class[utils.scopeKey] = {};
+    Class[utils.scopeKey][propertyName] = '@' + key;
   };
+}
+
+/**
+ * Polymorphic version of @bindTwoWay, usable without parens. Example:
+ *   class VM {
+ *     @bindTwoWay first: any;
+ *     @bindTwoWay({optional: true, key: 'secunda', collection: true})
+ *     second: any;
+ *   }
+ */
+export function bindTwoWay(targetOrKey: any|string, keyOrNothing: string|void) {
+  if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
+    return bindTwoWayBase().apply(null, arguments);
+  }
+  return bindTwoWayBase.apply(null, arguments);
 }
 
 /**
@@ -53,17 +84,31 @@ export function bindString(key: string = '') {
  *
  * Example usage:
  *   class VM {
- *     @bindTwoWay() first: {};
+ *     @bindTwoWay() first: any;
  *     @bindTwoWay({optional: true, key: 'secunda', collection: true})
- *     second: string[];
+ *     second: any;
  *   }
  */
-export function bindTwoWay(options: lib.BindOptionsTwoWay = {}) {
-  return function(target, propertyName: string): void {
+function bindTwoWayBase(options: lib.BindTwoWayOptions = {}) {
+  return function(target: any, propertyName: string): void {
     var Class = target.constructor;
-    if (!Class.scope) Class.scope = {};
-    Class.scope[propertyName] = '=' + encodeDescriptor(options);
+    if (!Class[utils.scopeKey]) Class[utils.scopeKey] = {};
+    Class[utils.scopeKey][propertyName] = '=' + encodeDescriptor(options);
   };
+}
+
+/**
+ * Polymorphic version of @bindExpression, usable without parens. Example:
+ *   class VM {
+ *     @bindExpression first: Function;
+ *     @bindExpression('secunda') second: Function;
+ *   }
+ */
+export function bindExpression(targetOrKey: any|string, keyOrNothing: string|void) {
+  if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
+    return bindExpressionBase().apply(null, arguments);
+  }
+  return bindExpressionBase.apply(null, arguments);
 }
 
 /**
@@ -75,12 +120,26 @@ export function bindTwoWay(options: lib.BindOptionsTwoWay = {}) {
  *     @bindExpression('secunda') second: Function;
  *   }
  */
-export function bindExpression(key: string = '') {
-  return function(target, propertyName: string): void {
+function bindExpressionBase(key: string = '') {
+  return function(target: any, propertyName: string): void {
     var Class = target.constructor;
-    if (!Class.scope) Class.scope = {};
-    Class.scope[propertyName] = '&' + key;
+    if (!Class[utils.scopeKey]) Class[utils.scopeKey] = {};
+    Class[utils.scopeKey][propertyName] = '&' + key;
   };
+}
+
+/**
+ * Polymorphic version of @bindOneWay, usable without parens. Example:
+ *   class VM {
+ *     @bindOneWay first: any;
+ *     @bindOneWay('secunda') second: any;
+ *   }
+ */
+export function bindOneWay(targetOrKey: any|string, keyOrNothing: string|void) {
+  if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
+    return bindOneWayBase().apply(null, arguments);
+  }
+  return bindOneWayBase.apply(null, arguments);
 }
 
 /**
@@ -90,8 +149,8 @@ export function bindExpression(key: string = '') {
  *
  * Example usage:
  *   class VM {
- *     @bindOneWay() first: Function;
- *     @bindOneWay('secunda') second: string;
+ *     @bindOneWay() first: any;
+ *     @bindOneWay('secunda') second: any;
  *     constructor() {
  *       this.first = null;    // has no effect
  *       this.first();         // works
@@ -100,16 +159,16 @@ export function bindExpression(key: string = '') {
  *     }
  *   }
  */
-export function bindOneWay(key: string = '') {
-  return function(target, propertyName: string): void {
+function bindOneWayBase(key: string = '') {
+  return function(target: any, propertyName: string): void {
     var Class = target.constructor;
-    if (!Class.scope) Class.scope = {};
+    if (!Class[utils.scopeKey]) Class[utils.scopeKey] = {};
 
-    var secretKey = randomString();
-    Class.scope[secretKey] = '&' + (key || propertyName);
+    var secretKey = utils.randomString();
+    Class[utils.scopeKey][secretKey] = '&' + (key || propertyName);
 
     Object.defineProperty(target, propertyName, {
-      get: function() {return this[secretKey]()},
+      get: function() {return this[secretKey] && this[secretKey]() || undefined},
       set: function(_) {}
     });
   };
@@ -120,13 +179,4 @@ export function bindOneWay(key: string = '') {
  */
 function encodeDescriptor(options): string {
   return (options.collection ? '*' : '') + (options.optional ? '?' : '') + (options.key || '');
-}
-
-/**
- * Creates a random string that is unlikely to clash with other keys. This is
- * where you're supposed to use a Symbol, but Angular can't bind to a
- * symbol-keyed property.
- */
-function randomString(): string {
-  return (Math.random() * Math.pow(10, 16)).toString(16);
 }

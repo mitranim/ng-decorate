@@ -7,22 +7,21 @@ function service(config: lib.ServiceConfig, ambient: boolean) {
   return function(constructor: Function) {
     var module = utils.getModule(config, config.serviceName);
 
+    var inject = [].concat(config.inject || [], constructor.prototype[utils.autoinjectKey] || []);
+    var injectStatic = [].concat(config.injectStatic || [], constructor[utils.autoinjectKey] || []);
+
     // Injector function that assigns the injected services to the class.
-    injector.$inject = [].concat(config.inject || [], config.injectStatic || []);
+    injector.$inject = inject.concat(injectStatic);
     function injector(...injected) {
       var map = utils.zipObject(injector.$inject, injected);
       // Assign injected values to the prototype.
-      if (config.inject) {
-        config.inject.forEach(token => {
-          constructor.prototype[token] = map[token];
-        });
-      }
+      inject.forEach(token => {
+        constructor.prototype[token] = map[token];
+      });
       // Assign injected values to the class.
-      if (config.injectStatic) {
-        config.injectStatic.forEach(token => {
-          constructor[token] = map[token];
-        });
-      }
+      injectStatic.forEach(token => {
+        constructor[token] = map[token];
+      });
     }
 
     // Instantiate the service and assign the injected values.
@@ -41,9 +40,23 @@ export function Service(config: lib.ServiceConfig) {
 }
 
 /**
+ * Polymorphic version of Ambient. Example:
+ *   @Ambient
+ *   class VM {
+ *     @autoinject $http;
+ *   }
+ */
+export function Ambient(configOrClass: any) {
+  if (typeof configOrClass === 'function') {
+    return AmbientBase({}).apply(null, arguments);
+  }
+  return AmbientBase.apply(null, arguments);
+}
+
+/**
  * Ambient service. We inject it with DI values without exporting the class
  * into the angular DI environment.
  */
-export function Ambient(config: lib.BaseConfig) {
+function AmbientBase(config: lib.BaseConfig) {
   return service(<lib.ServiceConfig>config, true);
 }

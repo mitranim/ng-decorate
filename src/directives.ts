@@ -12,7 +12,7 @@ function directive(config: lib.DirectiveConfig) {
      * Transfer properties.
      */
     config.controller = constructor;
-    if (constructor.scope !== undefined) config.scope = constructor.scope;
+    if (constructor[utils.scopeKey]) config.scope = constructor[utils.scopeKey];
     // Link functions must be cloned because angular mutates them with `require`
     // annotations, then relies on those annotations for injection.
     if (typeof constructor.link === 'function') {
@@ -33,22 +33,21 @@ function directive(config: lib.DirectiveConfig) {
       config.templateUrl = constructor.templateUrl;
     }
 
+    var inject = [].concat(config.inject || [], constructor.prototype[utils.autoinjectKey] || []);
+    var injectStatic = [].concat(config.injectStatic || [], constructor[utils.autoinjectKey] || []);
+
     // Directive function that assigns the injected services to the constructor.
-    definition.$inject = [].concat(config.inject || [], config.injectStatic || []);
+    definition.$inject = inject.concat(injectStatic);
     function definition(...injected) {
       var map = utils.zipObject(definition.$inject, injected);
       // Assign injected values to the prototype.
-      if (config.inject) {
-        config.inject.forEach(token => {
-          constructor.prototype[token] = map[token];
-        });
-      }
+      inject.forEach(token => {
+        constructor.prototype[token] = map[token];
+      });
       // Assign injected values to the class.
-      if (config.injectStatic) {
-        config.injectStatic.forEach(token => {
-          constructor[token] = map[token];
-        });
-      }
+      injectStatic.forEach(token => {
+        constructor[token] = map[token];
+      });
       return config;
     }
 
