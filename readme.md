@@ -51,7 +51,7 @@ import {Component, bindTwoWay} from 'ng-decorate';
   selector: 'my-accordeon'
 })
 class MyAccordeon {
-  @bindTwoWay() length: number;
+  @bindTwoWay length: number;
 }
 ```
 
@@ -345,8 +345,8 @@ import {Component, bindString, bindTwoWay} from 'ng-decorate';
   selector: 'editable'
 })
 class VM {
-  @bindString() label: string;
-  @bindTwoWay() value: string;
+  @bindString label: string;
+  @bindTwoWay value: string;
 }
 ```
 
