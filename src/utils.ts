@@ -106,7 +106,7 @@ export function randomString(): string {
  * or prototype.
  */
 export function autoinject(target: any, propertyName: string): void {
-  if (!target[autoinjectKey]) target[autoinjectKey] = [];
+  if (!target.hasOwnProperty(autoinjectKey)) target[autoinjectKey] = [];
   target[autoinjectKey].push(propertyName);
 }
 
