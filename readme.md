@@ -483,10 +483,13 @@ class X {
 
 ## `@autoinject`
 
-Automatic dependency assignment. Properties with `@autoinject` are retrieved
-using Angular's dependency injection, and made available in the class. Instance
-properties are assigned to the prototype, and static properties are assigned to
-the class itself.
+Automatic dependency assignment. Properties with `@autoinject` are
+dependency-injected and assigned to the class's prototype or the class itself
+(in case of static properties). This happens automatically, without you having
+to manually assign these properties in the constructor.
+
+This works for generic services like `$q` or `$http`. Contextual dependencies
+like `$element` still need to be constructor-injected.
 
 Must be used with one of the class decorators, like `@Component` or `@Ambient`.
 
