@@ -50,7 +50,7 @@ import {Component, bindTwoWay} from 'ng-decorate';
 @Component({
   selector: 'my-accordeon'
 })
-class MyAccordeon {
+class X {
   @bindTwoWay length: number;
 }
 ```
@@ -72,7 +72,7 @@ import {Component} from 'ng-decorate';
 @Component({
   selector: 'my-element'
 })
-class ViewModel {}
+class X {}
 ```
 
 With default settings, this expands to:
@@ -83,12 +83,12 @@ angular.module('myElement', ['ng']).directive('myElement', function() {
     restrict: 'E',
     scope: {},
     templateUrl: 'my-element/my-element.html',
-    controller: ViewModel,
+    controller: X,
     controller: 'self',
     bindToController: true
   };
 });
-class ViewModel {}
+class X {}
 ```
 
 See [`defaults`](#defaults) for customisation.
@@ -105,7 +105,7 @@ import {Attribute} from 'ng-decorate';
 @Attribute({
   selector: '[my-attribute]'
 })
-class ViewModel {}
+class X {}
 ```
 
 With default settings, this expands to:
@@ -115,10 +115,10 @@ angular.module('myAttribute', ['ng']).directive('myAttribute', function() {
   return {
     restrict: 'A',
     scope: false,
-    controller: ViewModel
+    controller: X
   };
 });
-class ViewModel {}
+class X {}
 ```
 
 See [`defaults`](#defaults) for customisation.
@@ -196,6 +196,8 @@ If omitted, defaults to `['ng']`, as shown above.
 
 #### `inject` `: string[]`
 
+**Deprecated**, see [`@autoinject`](#autoinject).
+
 Optional. Names of angular services that will be dependency-injected and
 automatically assigned to the class's prototype:
 
@@ -204,7 +206,7 @@ automatically assigned to the class's prototype:
   selector: 'my-element',
   inject: ['$q']
 })
-class ViewModel {
+class X {
   constructor() {
     console.log(this.$q)
   }
@@ -215,12 +217,12 @@ This lets you easily get hold of angular services while using ES6 modules for
 everything else. The magic happens during Angular's "run phase", before any
 directives are instantiated.
 
-See [`@autoinject`](#autoinject) for a shorter way to declare these injections.
-
 See the [`gotcha`](#gotcha) for the possible dependency injection issues. They
 can be easily avoided by using just one module.
 
 #### `injectStatic` `: string[]`
+
+**Deprecated**, see [`@autoinject`](#autoinject).
 
 Optional. Works exactly like `inject`, but assigns the injected services to the
 class as static properties.
@@ -230,14 +232,12 @@ class as static properties.
   selector: 'my-element',
   injectStatic: ['$http']
 })
-class ViewModel {
+class X {
   constructor() {
-    console.log(ViewModel.$http)
+    console.log(X.$http)
   }
 }
 ```
-
-See [`@autoinject`](#autoinject) for a shorter way to declare these injections.
 
 #### Statics
 
@@ -255,14 +255,15 @@ Example:
 
 ```typescript
 @Attribute({
-  selector: 'svg-icon',
-  injectStatic: ['$templateCache']
+  selector: 'svg-icon'
 })
-class ViewModel {
+class X {
+  @autoinject $templateCache;
+
   static template($element) {
     var element = $element[0];
     var src = 'svg/' + element.getAttribute('icon') + '.svg';
-    return ViewModel.$templateCache.get(src);
+    return X.$templateCache.get(src);
   }
 }
 ```
@@ -279,13 +280,13 @@ new directives or services.
 import {Ambient, autoinject} from 'ng-decorate';
 
 @Ambient
-class MyAjaxModel {
+class X {
   @autoinject $q;
   @autoinject static $http;
 
   constructor() {
     console.log(this.$q)
-    console.log(MyAjaxModel.$http)
+    console.log(X.$http)
   }
 }
 ```
@@ -307,7 +308,7 @@ Create a service:
 @Service({
    serviceName: 'MySpecialClass'
 })
-class MySpecialClass {}
+class X {}
 ```
 
 Get it in Angular's DI:
@@ -325,8 +326,6 @@ This applies to both `@Ambient` and `@Service`.
 #### `module` `: ng.IModule`
 #### `moduleName` `: string[]`
 #### `dependencies` `: string[]`
-#### `inject` `: string[]`
-#### `injectStatic` `: string[]`
 
 See [Directive Options](#directive-options).
 
@@ -344,7 +343,7 @@ import {Component, bindString, bindTwoWay} from 'ng-decorate';
 @Component({
   selector: 'editable'
 })
-class VM {
+class X {
   @bindString label: string;
   @bindTwoWay value: string;
 }
@@ -362,7 +361,7 @@ import {Component} from 'ng-decorate';
     value: '='
   }
 })
-class VM {
+class X {
   label: string;
   value: string;
 }
@@ -377,7 +376,7 @@ semantic.
 @Component({
   selector: 'my-element'
 })
-class VM {
+class X {
   @bindString first: string;
   @bindString('last') second: string;
 }
@@ -393,7 +392,7 @@ Expands to:
     second: '@last'
   }
 })
-class VM {
+class X {
   first: string;
   second: string;
 }
@@ -405,7 +404,7 @@ class VM {
 @Component({
   selector: 'my-element'
 })
-class VM {
+class X {
   @bindTwoWay first: any;
   @bindTwoWay({collection: true, optional: true, key: 'last'})
   second: any;
@@ -422,7 +421,7 @@ Expands to:
     second: '=*?last'
   }
 })
-class VM {
+class X {
   first: any;
   second: any;
 }
@@ -444,7 +443,7 @@ Example with a hardcoded string:
 @Component({
   selector: 'controlled-input'
 })
-class VM {
+class X {
   @bindOneWay value: any;
 
   constructor() {
@@ -460,7 +459,7 @@ class VM {
 @Component({
   selector: 'my-element'
 })
-class VM {
+class X {
   @bindExpression first: Function;
   @bindExpression('last') second: Function;
 }
@@ -476,7 +475,7 @@ Expands to:
     second: '&last'
   }
 })
-class VM {
+class X {
   first: Function;
   second: Function;
 }
@@ -484,8 +483,12 @@ class VM {
 
 ## `@autoinject`
 
-Annotates properties for automatic injection, allowing you to skip `inject`
-and `injectStatic` in the decorator options. Example:
+Automatic dependency assignment. Properties with `@autoinject` are retrieved
+using Angular's dependency injection, and made available in the class. Instance
+properties are assigned to the prototype, and static properties are assigned to
+the class itself.
+
+Must be used with one of the class decorators, like `@Component` or `@Ambient`.
 
 ```typescript
 import {Component, autoinject} from 'ng-decorate';
@@ -493,17 +496,21 @@ import {Component, autoinject} from 'ng-decorate';
 @Component({
   selector: 'todo-list'
 })
-class VM {
+class X {
   @autoinject $q;
   @autoinject static $timeout;
+
   constructor() {
     console.log(this.$q);
-    console.log(VM.$timeout);
+    console.log(X.$timeout);
   }
 }
 ```
 
 Works great with TypeScript and property type annotations.
+
+As an alternative, you can pass arrays of properties as `inject` and
+`injectStatic` to the class decorator (deprecated).
 
 ## `defaults`
 
@@ -525,7 +532,7 @@ export const defaults = {
   makeTemplateUrl(elementName: string): string {
     return elementName + '/' + elementName + '.html';
   }
-}
+};
 ```
 
 Example configuration:
