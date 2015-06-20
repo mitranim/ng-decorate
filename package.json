@@ -1,6 +1,6 @@
 {
   "name": "ng-decorate",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "authors": [
     "Mitranim <me@mitranim.com>"
   ],
@@ -35,13 +35,11 @@
     "typescript": "git://github.com/microsoft/TypeScript.git"
   },
   "jspm": {
-    "main": "lib/index",
+    "directories": {
+      "lib": "lib"
+    },
+    "main": "index",
     "format": "cjs",
-    "configFile": "system.config.js",
-    "devDependencies": {
-      "babel": "npm:babel-core@^5.0.12",
-      "babel-runtime": "npm:babel-runtime@^5.0.12",
-      "core-js": "npm:core-js@^0.8.1"
-    }
+    "configFile": "system.config.js"
   }
 }

@@ -23,6 +23,7 @@ to get you started: [[1]](http://mitranim.com/thoughts/next-generation-today/).
 * [Services](#services)
   * [`@Ambient`](#ambient)
   * [`@Service`](#service)
+  * [`@Controller`](#controller)
   * [Service Options](#service-options)
 * [Bindings](#bindings)
   * [`@bindString`](#bindstring)
@@ -319,9 +320,40 @@ angular.module('app').run(['MySpecialClass', function(MySpecialClass) {
 }]);
 ```
 
+### `@Controller`
+
+Same as `@Ambient` but also registers the class as an "old school" controller
+under the given name. Can optionally publish the class to the DI system, just
+like `@Service`.
+
+Register the controller:
+
+```typescript
+@Controller({
+  controllerName: 'X'
+})
+class X {}
+
+@Controller({
+  controllerName: 'Y',
+  serviceName: 'Y'
+})
+class Y {}
+```
+
+Use in template:
+
+```html
+<div ng-controller="X"></div>
+```
+
+This type of controller usage is outdated and generally **not recommended**. Use
+`@Component` instead. This decorator is provided to ease migration of legacy
+apps.
+
 ### Service Options
 
-This applies to both `@Ambient` and `@Service`.
+This applies to `@Ambient`, `@Service`, and `@Controller`.
 
 #### `module` `: ng.IModule`
 #### `moduleName` `: string[]`

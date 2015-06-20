@@ -4,12 +4,12 @@
  * TODO publish to tsd.
  */
 
-// god bless microsoft for forcing us to code in indian style
 declare module 'ng-decorate' {
   export var Attribute: typeof ngDecorate.Attribute;
   export var Ambient: typeof ngDecorate.Ambient;
   export var Component: typeof ngDecorate.Component;
   export var Service: typeof ngDecorate.Service;
+  export var Controller: typeof ngDecorate.Controller;
   export var autoinject: typeof ngDecorate.autoinject;
   export var bindTwoWay: typeof ngDecorate.bindTwoWay;
   export var bindOneWay: typeof ngDecorate.bindOneWay;
@@ -24,6 +24,7 @@ declare module ngDecorate {
   export function Ambient(config: BaseConfig);
   export function Component(config: DirectiveConfig);
   export function Service(config: ServiceConfig);
+  export function Controller(config: ControllerConfig);
 
   // Property decorators.
   export function autoinject(target: any, key: string);
@@ -53,9 +54,11 @@ declare module ngDecorate {
     // Names of other angular modules this module depends on.
     dependencies?: string[];
 
+    // DEPRECATED in favour of @autoinject.
     // Angular services that will be assigned to the class prototype.
     inject?: string[];
 
+    // DEPRECATED in favour of @autoinject.
     // Angular services that will be assigned to the class as static properties.
     injectStatic?: string[];
   }
@@ -72,12 +75,19 @@ declare module ngDecorate {
     serviceName: string;
   }
 
-  interface Controller extends Function {
+  interface ControllerConfig extends BaseConfig {
+    // Mandatory controller name.
+    controllerName: string;
+    // Optional service name. If included, the controller is published to
+    // angular's DI as a service under this name.
+    serviceName?: string;
+  }
+
+  interface ControllerClass extends Function {
     template?: string|Function;
     templateUrl?: string|Function;
     link?: Function;
     compile?: any;
-    scope: any;
   }
 
   interface BindTwoWayOptions {

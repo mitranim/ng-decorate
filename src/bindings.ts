@@ -1,3 +1,5 @@
+'use strict';
+
 import * as utils from './utils';
 
 /**
@@ -168,7 +170,10 @@ function bindOneWayBase(key: string = '') {
     Class[utils.scopeKey][secretKey] = '&' + (key || propertyName);
 
     Object.defineProperty(target, propertyName, {
-      get: function() {return this[secretKey] && this[secretKey]() || undefined},
+      get: function() {
+        if (typeof this[secretKey] === 'function') return this[secretKey]();
+        return undefined;
+      },
       set: function(_) {}
     });
   };

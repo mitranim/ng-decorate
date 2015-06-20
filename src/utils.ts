@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * Mutable configuration object.
  */
@@ -120,3 +122,10 @@ export var autoinjectKey = typeof Symbol === 'function' ? Symbol('autoinjectSett
  * Used to store binding information (isolated scope settings).
  */
 export var scopeKey = typeof Symbol === 'function' ? Symbol('scopeSettings') : randomString();
+
+/**
+ * Assertion utility.
+ */
+export function assert(ok: boolean, ...args: string[]): void {
+  if (!ok) throw new Error(args.join(' '));
+}

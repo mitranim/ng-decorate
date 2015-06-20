@@ -1,8 +1,15 @@
+'use strict';
+
 import * as utils from './utils';
 
-function service(config: lib.ServiceConfig, ambient: boolean) {
-  console.assert(config != null && typeof config === 'object', `expected a configuration object, got: ${config}`);
-  if (!ambient) console.assert(!!config.serviceName, 'you must provide a service name');
+function service(config: lib.ServiceConfig|lib.ControllerConfig, type?: string) {
+  utils.assert(config != null && typeof config === 'object', `expected a configuration object, got: ${config}`);
+  if (type === 'service') {
+    utils.assert(!!config.serviceName, 'you must provide a service name');
+  }
+  if (type === 'controller') {
+    utils.assert(!!(<lib.ControllerConfig>config).controllerName, 'you must provide a controller name');
+  }
 
   return function(constructor: Function) {
     var module = utils.getModule(config, config.serviceName);
@@ -24,11 +31,16 @@ function service(config: lib.ServiceConfig, ambient: boolean) {
       });
     }
 
-    // Instantiate the service and assign the injected values.
+    // Run DI.
     module.run(injector);
 
-    // If the context is not ambient, register the factory.
-    if (!ambient) module.factory(config.serviceName, function() {return constructor});
+    // Publish service and/or controller.
+    if (type === 'controller') {
+      let conf = <lib.ControllerConfig>config;
+      module.controller(conf.controllerName, constructor);
+      if (conf.serviceName) module.factory(conf.serviceName, () => constructor);
+    }
+    if (type === 'service') module.factory(config.serviceName, () => constructor);
   }
 }
 
@@ -36,7 +48,7 @@ function service(config: lib.ServiceConfig, ambient: boolean) {
  * Defines a generic angular service.
  */
 export function Service(config: lib.ServiceConfig) {
-  return service(config, false);
+  return service(config, 'service');
 }
 
 /**
@@ -58,5 +70,14 @@ export function Ambient(configOrClass: any) {
  * into the angular DI environment.
  */
 function AmbientBase(config: lib.BaseConfig) {
-  return service(<lib.ServiceConfig>config, true);
+  return service(<lib.ServiceConfig>config);
+}
+
+/**
+ * Old-school controller. Gets injected with DI, then published as
+ * module.controller under the given name. Can also optionally be published as
+ * a service.
+ */
+export function Controller(config: lib.ControllerConfig) {
+  return service(config, 'controller');
 }
