@@ -341,7 +341,7 @@ class X {}
 class Y {}
 ```
 
-Use in template:
+Use in a template:
 
 ```html
 <div ng-controller="X"></div>
@@ -349,7 +349,7 @@ Use in template:
 
 This type of controller usage is outdated and generally **not recommended**. Use
 `@Component` instead. This decorator is provided to ease migration of legacy
-apps.
+apps to ES6/7.
 
 ### Service Options
 
@@ -364,8 +364,9 @@ See [Directive Options](#directive-options).
 ## Bindings
 
 Directly annotate class properties to declare them as bindable. Perfect with
-TypeScript. The annotations are collected into a `scope: {/* ... */}`
-declaration, which is then passed to the directive definition object.
+TypeScript. When used with `@Component` or `@Attribute`, the annotations are
+grouped and converted into a `scope: {/* ... */}` declaration for the internal
+directive definition object.
 
 Example:
 

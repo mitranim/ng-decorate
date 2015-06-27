@@ -42,7 +42,7 @@ function bind(descriptor: string = '=') {
  *     @bindString('secunda') second: string;
  *   }
  */
-export function bindString(targetOrKey: any|string, keyOrNothing: string|void) {
+export function bindString(targetOrKey: any|string, keyOrNothing?: string) {
   if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
     return bindStringBase().apply(null, arguments);
   }
@@ -74,7 +74,7 @@ function bindStringBase(key: string = '') {
  *     second: any;
  *   }
  */
-export function bindTwoWay(targetOrKey: any|string, keyOrNothing: string|void) {
+export function bindTwoWay(targetOrKey: any|string, keyOrNothing?: string) {
   if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
     return bindTwoWayBase().apply(null, arguments);
   }
@@ -106,7 +106,7 @@ function bindTwoWayBase(options: lib.BindTwoWayOptions = {}) {
  *     @bindExpression('secunda') second: Function;
  *   }
  */
-export function bindExpression(targetOrKey: any|string, keyOrNothing: string|void) {
+export function bindExpression(targetOrKey: any|string, keyOrNothing?: string) {
   if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
     return bindExpressionBase().apply(null, arguments);
   }
@@ -137,7 +137,7 @@ function bindExpressionBase(key: string = '') {
  *     @bindOneWay('secunda') second: any;
  *   }
  */
-export function bindOneWay(targetOrKey: any|string, keyOrNothing: string|void) {
+export function bindOneWay(targetOrKey: any|string, keyOrNothing?: string) {
   if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
     return bindOneWayBase().apply(null, arguments);
   }

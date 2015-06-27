@@ -24,7 +24,8 @@ gulp.task('build', ['clear'], function() {
       typescript: require('typescript'),
       target: 'ES5',
       module: 'commonjs',
-      noExternalResolve: true
+      noExternalResolve: true,
+      experimentalDecorators: true
     }))
     .pipe(filter)
     // Allow SystemJS to consume our named exports the ES6 way.
