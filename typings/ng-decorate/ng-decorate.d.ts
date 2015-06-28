@@ -20,18 +20,23 @@ declare module 'ng-decorate' {
 
 declare module ngDecorate {
   // Class decorators.
-  export function Attribute(config: DirectiveConfig);
-  export function Ambient(config?: BaseConfig);
-  export function Component(config: DirectiveConfig);
-  export function Service(config: ServiceConfig);
-  export function Controller(config: ControllerConfig);
+  export function Attribute(config: DirectiveConfig): ClassDecorator;
+  export function Ambient(config: BaseConfig): ClassDecorator;
+  export function Ambient(target: Function): void;
+  export function Component(config: DirectiveConfig): ClassDecorator;
+  export function Service(config: ServiceConfig): ClassDecorator;
+  export function Controller(config: ControllerConfig): ClassDecorator;
 
   // Property decorators.
   export function autoinject(target: any, key: string);
-  export function bindTwoWay(options?: BindTwoWayOptions);
-  export function bindOneWay(targetOrKey: any|string, keyOrNothing?: string);
-  export function bindString(targetOrKey: any|string, keyOrNothing?: string);
-  export function bindExpression(targetOrKey: any|string, keyOrNothing?: string);
+  export function bindTwoWay(options: BindTwoWayOptions): PropertyDecorator;
+  export function bindTwoWay(target: any, key: string): void;
+  export function bindOneWay(key: string): PropertyDecorator;
+  export function bindOneWay(target: any, key: string): void;
+  export function bindString(key: string): PropertyDecorator;
+  export function bindString(target: any, key: string): void;
+  export function bindExpression(key: string): PropertyDecorator;
+  export function bindExpression(target: any, key: string): void;
 
   // Mutable configuration.
   export const defaults: {
