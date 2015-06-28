@@ -85,7 +85,7 @@ angular.module('myElement', ['ng']).directive('myElement', function() {
     scope: {},
     templateUrl: 'my-element/my-element.html',
     controller: X,
-    controller: 'self',
+    controllerAs: 'self',
     bindToController: true
   };
 });
