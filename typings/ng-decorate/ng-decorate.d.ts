@@ -28,7 +28,7 @@ declare module ngDecorate {
 
   // Property decorators.
   export function autoinject(target: any, key: string);
-  export function bindTwoWay(options?: BindTwoWayOptions);
+  export function bindTwoWay(targetOrKey: any|string, options?: BindTwoWayOptions);
   export function bindOneWay(targetOrKey: any|string, keyOrNothing?: string);
   export function bindString(targetOrKey: any|string, keyOrNothing?: string);
   export function bindExpression(targetOrKey: any|string, keyOrNothing?: string);
