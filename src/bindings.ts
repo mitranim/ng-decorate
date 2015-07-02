@@ -74,11 +74,11 @@ function bindStringBase(key: string = '') {
  *     second: any;
  *   }
  */
-export function bindTwoWay(targetOrKey: any|string, keyOrNothing?: string) {
-  if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
-    return bindTwoWayBase().apply(null, arguments);
+export function bindTwoWay(targetOrOptions: any|lib.BindTwoWayOptions, keyOrNothing?: string) {
+  if (targetOrOptions != null && typeof targetOrOptions === 'object' && typeof keyOrNothing === 'string') {
+    bindTwoWayBase()(targetOrOptions, keyOrNothing);
   }
-  return bindTwoWayBase.apply(null, arguments);
+  return bindTwoWayBase(targetOrOptions);
 }
 
 /**
@@ -108,9 +108,9 @@ function bindTwoWayBase(options: lib.BindTwoWayOptions = {}) {
  */
 export function bindExpression(targetOrKey: any|string, keyOrNothing?: string) {
   if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
-    return bindExpressionBase().apply(null, arguments);
+    bindExpressionBase()(targetOrKey, keyOrNothing);
   }
-  return bindExpressionBase.apply(null, arguments);
+  return bindExpressionBase(targetOrKey);
 }
 
 /**
@@ -139,9 +139,9 @@ function bindExpressionBase(key: string = '') {
  */
 export function bindOneWay(targetOrKey: any|string, keyOrNothing?: string) {
   if (targetOrKey != null && typeof targetOrKey === 'object' && typeof keyOrNothing === 'string') {
-    return bindOneWayBase().apply(null, arguments);
+    bindOneWayBase()(targetOrKey, keyOrNothing);
   }
-  return bindOneWayBase.apply(null, arguments);
+  return bindOneWayBase(targetOrKey);
 }
 
 /**
@@ -150,14 +150,15 @@ export function bindOneWay(targetOrKey: any|string, keyOrNothing?: string) {
  * property read-only.
  *
  * Example usage:
- *   class VM {
- *     @bindOneWay() first: any;
- *     @bindOneWay('secunda') second: any;
+ *   @Component({
+ *     selector: 'controlled-input'
+ *   })
+ *   class X {
+ *     @bindOneWay value: any;
+ *
  *     constructor() {
- *       this.first = null;    // has no effect
- *       this.first();         // works
- *       this.second = null;   // has no effect
- *       this.second !== null; // might be true
+ *       this.value = 123;         // has no effect
+ *       console.log(this.value);  // prints 'constant value'
  *     }
  *   }
  */

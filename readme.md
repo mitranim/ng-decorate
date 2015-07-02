@@ -161,10 +161,12 @@ new module will be created, and other module options will be ignored:
 })
 ```
 
-I recommend using a single angular "module" for the entire application. The
-modularity of your app comes from ES6 modules, and maintaining another
-dependency tree is pointless. See [`defaults`](#defaults) for how to set up an
-implicit module.
+I recommend using a single angular "module" for the entire application. Angular
+dependencies are kinda fake: all providers (services, etc.) are registered
+globally in the application injector, and dependencies "bleed through" to sister
+modules. Might as well admit this and keep it simple. The real dependency tree
+of your application is defined by ES6 modules. See [`defaults`](#defaults) for
+setting up a default angular module.
 
 #### `moduleName` `: string`
 
@@ -591,9 +593,9 @@ dependency tree of your main module (the one that has been bootstrapped via
 modules, you must add them to the dependency list of the main module.
 
 To avoid this, use a single angular module for the entire application, setting
-it in `defaults` or explicitly passing it to decorators. The real modularity
-comes from ES6 modules, so there's nothing to gain by maintaining a separate
-dependency tree for the DI injector.
+it in `defaults` or explicitly passing it to decorators. There's nothing to gain
+by using fake Angular dependendencies that end up sharing the same global
+namespace.
 
 ## Prior Art
 
