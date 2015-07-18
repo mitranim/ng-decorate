@@ -518,13 +518,9 @@ class X {
 
 ## `@autoinject`
 
-Automatic dependency assignment. Properties with `@autoinject` are
-dependency-injected and assigned to the class's prototype or the class itself
-(in case of static properties). This happens automatically, without you having
-to manually assign these properties in the constructor.
-
-This works for generic services like `$q` or `$http`. Contextual dependencies
-like `$element` still need to be constructor-injected.
+Properties annotated with `@autoinject` are automatically assigned to the prototype
+(instance properties) or class (static properties). You don't need to inject them
+in the constructor.
 
 Must be used with one of the class decorators, like `@Component` or `@Ambient`.
 
@@ -549,6 +545,30 @@ Works great with TypeScript and property type annotations.
 
 As an alternative, you can pass arrays of properties as `inject` and
 `injectStatic` to the class decorator (deprecated).
+
+Note that this only works for global services. For contextual dependencies
+like `$scope`, use constructor injection:
+
+```javascript
+class X {
+  static $inject = ['$scope', '$element'];
+  constructor($scope, $element) {
+    /* ... */
+  }
+}
+```
+
+With TypeScript, use the `private` or `public` modifier to automatically assign
+the injected value to the instance:
+
+```typescript
+class X {
+  static $inject = ['$scope', '$element'];
+  constructor(private $scope, private $element) {
+    /* ... */
+  }
+}
+```
 
 ## `defaults`
 
