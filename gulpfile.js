@@ -5,21 +5,18 @@
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 var del = require('del');
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
 
 /*********************************** Tasks ***********************************/
 
 gulp.task('clear', function(done) {
-  del('lib', done);
+  del('.tmp', done);
 });
 
-gulp.task('build', ['clear'], function() {
-  var filter = $.filter('**/index.js');
-
+gulp.task('compile', ['clear'], function() {
   return gulp.src(['src/**/*.ts', 'def/**/*.ts', 'typings/**/*.ts'])
-    .pipe($.plumber(function(error) {
-      console.log(error.stack || error.message || error);
-      console.log('\x07');
-    }))
+    .pipe($.plumber())
     .pipe($.typescript({
       typescript: require('typescript'),
       target: 'ES5',
@@ -27,14 +24,14 @@ gulp.task('build', ['clear'], function() {
       noExternalResolve: true,
       experimentalDecorators: true
     }))
-    .pipe(filter)
-    // Allow SystemJS to consume our named exports the ES6 way.
-    .pipe($.replace(/$/,
-      "\nObject.defineProperty(exports, '__esModule', {\n" +
-      "  value: true\n" +
-      "});\n"
-    ))
-    .pipe(filter.restore())
+    .pipe(gulp.dest('.tmp'));
+});
+
+gulp.task('build', ['compile'], function() {
+  return browserify({standalone: 'ng-decorate'})
+    .add('.tmp/index')
+    .bundle()
+    .pipe(source('ng-decorate.js'))
     .pipe(gulp.dest('lib'));
 });
 
