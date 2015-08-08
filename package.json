@@ -1,6 +1,6 @@
 {
   "name": "ng-decorate",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "authors": [
     "Mitranim <me@mitranim.com>"
   ],
@@ -10,7 +10,7 @@
     "gulp": "gulp",
     "prepublish": "gulp build"
   },
-  "main": "lib/ng-decorate",
+  "main": "dist/ng-decorate",
   "keywords": [
     "decorators",
     "es7",
@@ -23,22 +23,17 @@
   "devDependencies": {
     "browserify": "^11.0.0",
     "del": "^1.1.1",
-    "gulp": "^3.8.11",
-    "gulp-concat": "^2.6.0",
-    "gulp-filter": "^2.0.2",
+    "gulp": "gulpjs/gulp#4.0",
     "gulp-load-plugins": "^0.10.0",
-    "gulp-plumber": "^1.0.0",
-    "gulp-typescript": "^2.7.4",
+    "gulp-typescript": "^2.8.0",
     "gulp-watch": "^4.2.4",
-    "tsd": "^0.5.7",
-    "typescript": "git://github.com/microsoft/TypeScript.git",
     "vinyl-source-stream": "^1.1.0"
   },
   "jspm": {
     "directories": {
       "lib": "lib"
     },
-    "main": "ng-decorate",
+    "main": "index",
     "format": "cjs"
   }
 }

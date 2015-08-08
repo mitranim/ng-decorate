@@ -40,6 +40,8 @@ to get you started: [[1]](http://mitranim.com/thoughts/next-generation-today/).
 In shell:
 
 ```sh
+npm i --save-dev ng-decorate
+# or
 jspm install npm:ng-decorate
 ```
 
