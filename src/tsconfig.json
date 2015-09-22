@@ -1,8 +1,9 @@
 {
-    "version": "1.5.0",
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "noImplicitAny": false
-    }
+  "version": "1.6.0",
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "experimentalDecorators": true
+  }
 }

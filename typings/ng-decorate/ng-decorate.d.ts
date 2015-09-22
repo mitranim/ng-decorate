@@ -1,7 +1,8 @@
-/// <reference path="../angularjs/angular.d.ts" />
-
 /**
- * TODO publish to tsd.
+ * Usage:
+ *   npm i --save-dev ng-decorate
+ *   tsd init  # http://definitelytyped.org/tsd/
+ *   tsd link
  */
 
 declare module 'ng-decorate' {

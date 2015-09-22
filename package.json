@@ -1,6 +1,6 @@
 {
   "name": "ng-decorate",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "authors": [
     "Mitranim <me@mitranim.com>"
   ],
@@ -35,5 +35,8 @@
     },
     "main": "index",
     "format": "cjs"
+  },
+  "typescript": {
+    "definition": "typings/ng-decorate/ng-decorate.d.ts"
   }
 }

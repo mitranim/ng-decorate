@@ -33,7 +33,7 @@ to get you started: [[1]](http://mitranim.com/thoughts/next-generation-today/).
 * [`@autoinject`](#autoinject)
 * [`defaults`](#defaults)
 * [Gotcha](#gotcha)
-* [Prior Art](#prior-art)
+* [Alternatives](#alternatives)
 
 ## Installation
 
@@ -619,15 +619,11 @@ it in `defaults` or explicitly passing it to decorators. There's nothing to gain
 by using fake Angular dependendencies that end up sharing the same global
 namespace.
 
-## Prior Art
+## Alternatives
 
-Found some other Angular1.x decorator libraries:
-* [a1atscript](https://github.com/hannahhoward/a1atscript)
-* [angular2-now](https://github.com/pbastowski/angular2-now)
-
-These libraries focus on syntax, trying to emulate the Angular 2 decorator API.
-
-In contrast, `ng-decorate` focuses on solving the real problem of making
-Angular's dependency injection work with ES6 modules, and aligns with the
-Angular 1.x directive API. It also introduces useful property annotations for
-bindings and injection.
+[ng-forward](https://github.com/ngUpgraders/ng-forward) is an upcoming ng1->ng2
+migration helper based on
+[angular-decorators](https://github.com/mikeryan52/angular-decorators)
+with input from
+[a1atscript](https://github.com/hannahhoward/a1atscript),
+[angular2-now](https://github.com/pbastowski/angular2-now) and `ng-decorate`.
