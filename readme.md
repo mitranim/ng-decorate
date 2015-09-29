@@ -616,8 +616,8 @@ modules, you must add them to the dependency list of the main module.
 
 To avoid this, use a single angular module for the entire application, setting
 it in `defaults` or explicitly passing it to decorators. There's nothing to gain
-by using fake Angular dependendencies that end up sharing the same global
-namespace.
+by using Angular's fake dependencies that end up sharing the same global
+namespace in the resulting injector.
 
 ## Alternatives
 
